@@ -1,0 +1,4 @@
+[submodule "fsw"]
+	path = fsw
+	url = https://github.com/TrySpaceOrg/tryspace-fsw.git
+	branch = main
