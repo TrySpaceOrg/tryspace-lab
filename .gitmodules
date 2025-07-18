@@ -2,3 +2,7 @@
 	path = fsw
 	url = https://github.com/TrySpaceOrg/tryspace-fsw.git
 	branch = main
+[submodule "comp/demo"]
+	path = comp/demo
+	url = https://github.com/TrySpaceOrg/tryspace-comp-demo.git
+	branch = main
