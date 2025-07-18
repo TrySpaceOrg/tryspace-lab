@@ -6,3 +6,7 @@
 	path = comp/demo
 	url = https://github.com/TrySpaceOrg/tryspace-comp-demo.git
 	branch = main
+[submodule "simulith"]
+	path = simulith
+	url = https://github.com/TrySpaceOrg/tryspace-simulith.git
+	branch = main
