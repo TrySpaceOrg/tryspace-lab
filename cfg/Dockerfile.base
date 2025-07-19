@@ -1,0 +1,21 @@
+# TrySpace FSW Dockerfile
+# https://github.com/TrySpaceOrg/tryspace-lab
+#
+# docker push ghcr.io/tryspaceorg/tryspace-lab:latest
+#
+
+FROM debian:bookworm-slim@sha256:6ac2c08566499cc2415926653cf2ed7c3aedac445675a013cc09469c9e118fdd
+LABEL maintainer="TrySpaceOrg" description="Base image for TrySpace Lab"
+
+# Install required tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential=12.9 \
+    cmake=3.25.1-1 \
+    git=1:2.39.5-0+deb12u2 \
+    libzmq3-dev=4.3.4-6 \
+    pkg-config=1.8.1-1 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# (Optional) Set up cross-compiler toolchain (example: LEON3)
+# RUN apt-get update && apt-get install -y gcc-sparc64-linux-gnu
