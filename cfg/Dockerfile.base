@@ -13,6 +13,7 @@ RUN apt-get update && \
     build-essential=12.9 \
     cmake=3.25.1-1 \
     git=1:2.39.5-0+deb12u2 \
+    libsocketcan-dev=0.0.12-1 \
     libzmq3-dev=4.3.4-6 \
     pkg-config=1.8.1-1 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
