@@ -13,15 +13,18 @@ services:
     restart: unless-stopped
     stdin_open: true
     tty: true
+    environment:
+      - NUM_CLIENTS=${NUM_CLIENTS:-2}
+    command: ["/bin/sh", "-c", "/app/simulith_server_standalone $${NUM_CLIENTS}"]
 
-  #tryspace-comp-demo-sim:
-  #  image: tryspace-comp-demo-sim:latest
-  #  container_name: tryspace-comp-demo-sim
-  #  networks:
-  #    - tryspace-net
-  #  restart: unless-stopped
-  #  depends_on:
-  #    - tryspace-sim
+  tryspace-comp-demo-sim:
+    image: tryspace-comp-demo-sim:latest
+    container_name: tryspace-comp-demo-sim
+    networks:
+      - tryspace-net
+    restart: unless-stopped
+    depends_on:
+      - tryspace-sim
 
   tryspace-fsw:
     image: tryspace-fsw:latest
@@ -33,17 +36,14 @@ services:
     tty: true
     depends_on:
       - tryspace-sim
-    #  - tryspace-comp-demo-sim
+      - tryspace-comp-demo-sim
     sysctls:
       - fs.mqueue.msg_max=10000
     ulimits:
       rtprio: 99
     cap_add:
       - SYS_NICE
-    #command: >
-    #  sh -c "touch /app/.cdskeyfile /app/.resetkeyfile /app/.reservedkeyfile && 
-    #         /app/core-cpu1"
-
+    
 networks:
   tryspace-net:
     driver: bridge

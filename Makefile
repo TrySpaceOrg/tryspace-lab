@@ -4,7 +4,7 @@
 export BUILD_IMAGE_NAME ?= tryspace-lab
 
 # Commands
-all: build
+all: runtime
 
 env:
 	@if [ ! -f $(CURDIR)/cfg/.env ]; then \
@@ -50,6 +50,7 @@ container:
 
 runtime: env
 	$(MAKE) container
+	cd $(CURDIR)/comp/demo/sim && $(MAKE) runtime
 	cd $(CURDIR)/fsw && $(MAKE) runtime
 	cd $(CURDIR)/simulith && $(MAKE) runtime
 
