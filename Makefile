@@ -52,7 +52,7 @@ runtime: env
 	$(MAKE) container
 	cd $(CURDIR)/comp/demo/sim && $(MAKE) runtime
 	cd $(CURDIR)/fsw && $(MAKE) runtime
-	cd $(CURDIR)/simulith && $(MAKE) runtime
+	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
 
 start: env
 	docker compose -f ./cfg/lab-compose.yml up
