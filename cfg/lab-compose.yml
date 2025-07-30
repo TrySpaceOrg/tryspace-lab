@@ -16,6 +16,15 @@ services:
     environment:
       - NUM_CLIENTS=${NUM_CLIENTS:-2}
     command: ["/bin/sh", "-c", "/app/simulith_server_standalone $${NUM_CLIENTS}"]
+    cpus: "4.0"
+    mem_limit: 2g
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=1g
+    security_opt:
+      - seccomp:unconfined
+    privileged: false
 
   tryspace-director:
     image: tryspace-director:latest
@@ -28,6 +37,12 @@ services:
     depends_on:
       - tryspace-server
     command: ["/app/simulith_director_standalone"]
+    cpus: "1.0"
+    mem_limit: 512m
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=100m
 
   tryspace-fsw:
     image: tryspace-fsw:latest
@@ -46,7 +61,20 @@ services:
       rtprio: 99
     cap_add:
       - SYS_NICE
+    cpus: "4.0"
+    mem_limit: 2g
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=1g
+    security_opt:
+      - seccomp:unconfined
+    privileged: false
     
 networks:
   tryspace-net:
     driver: bridge
+
+volumes:
+  simulith_ipc:
+    driver: local

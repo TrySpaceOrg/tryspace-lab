@@ -27,7 +27,7 @@ build-gsw:
 build-sim:
 	docker run --rm -it -v $(CURDIR):$(CURDIR) --name "tryspace_sim_build" -w $(CURDIR)/simulith --user $(shell id -u):$(shell id -g) --sysctl fs.mqueue.msg_max=10000 --ulimit rtprio=99 --cap-add=sys_nice $(BUILD_IMAGE_NAME) make -j build-sim
 
-debug:
+debug: env
 	docker run --rm -it -v $(CURDIR):$(CURDIR) --name "tryspace_fsw_debug" -w $(CURDIR) --user $(shell id -u):$(shell id -g) --sysctl fs.mqueue.msg_max=10000 --ulimit rtprio=99 --cap-add=sys_nice $(BUILD_IMAGE_NAME) /bin/bash
 
 clean:
@@ -46,7 +46,7 @@ clean-sim:
 	cd simulith && $(MAKE) clean
 
 container:
-	docker build -t $(BUILD_IMAGE_NAME) -f cfg/Dockerfile.base .
+	docker build -t $(BUILD_IMAGE_NAME) -f cfg/Dockerfile.base --build-arg USER_ID=$(shell id -u) --build-arg GROUP_ID=$(shell id -g) .
 
 runtime: env
 	$(MAKE) container
