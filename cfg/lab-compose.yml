@@ -2,12 +2,12 @@
 #   docker compose -f lab-compose.yml up
 # View specific containers
 #   docker attach tryspace-fsw
-#   docker attach tryspace-comp-demo-sim
-#   docker attach tryspace-sim
+#   docker attach tryspace-director
+#   docker attach tryspace-server
 services:
-  tryspace-sim:
-    image: tryspace-sim:latest
-    container_name: tryspace-sim
+  tryspace-server:
+    image: tryspace-server:latest
+    container_name: tryspace-server
     networks:
       - tryspace-net
     restart: unless-stopped
@@ -16,15 +16,33 @@ services:
     environment:
       - NUM_CLIENTS=${NUM_CLIENTS:-2}
     command: ["/bin/sh", "-c", "/app/simulith_server_standalone $${NUM_CLIENTS}"]
+    cpus: "4.0"
+    mem_limit: 2g
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=1g
+    security_opt:
+      - seccomp:unconfined
+    privileged: false
 
-  tryspace-comp-demo-sim:
-    image: tryspace-comp-demo-sim:latest
-    container_name: tryspace-comp-demo-sim
+  tryspace-director:
+    image: tryspace-director:latest
+    container_name: tryspace-director
     networks:
       - tryspace-net
     restart: unless-stopped
+    stdin_open: true
+    tty: true
     depends_on:
-      - tryspace-sim
+      - tryspace-server
+    command: ["/app/simulith_director_standalone"]
+    cpus: "1.0"
+    mem_limit: 512m
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=100m
 
   tryspace-fsw:
     image: tryspace-fsw:latest
@@ -35,15 +53,28 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-      - tryspace-sim
-      - tryspace-comp-demo-sim
+      - tryspace-server
+      - tryspace-director
     sysctls:
       - fs.mqueue.msg_max=10000
     ulimits:
       rtprio: 99
     cap_add:
       - SYS_NICE
+    cpus: "4.0"
+    mem_limit: 2g
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=1g
+    security_opt:
+      - seccomp:unconfined
+    privileged: false
     
 networks:
   tryspace-net:
     driver: bridge
+
+volumes:
+  simulith_ipc:
+    driver: local

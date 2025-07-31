@@ -18,5 +18,11 @@ RUN apt-get update && \
     pkg-config=1.8.1-1 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Create user for development (matches host user)
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN groupadd -g ${GROUP_ID} developer && \
+    useradd -u ${USER_ID} -g ${GROUP_ID} -m -s /bin/bash tryspace
+
 # (Optional) Set up cross-compiler toolchain (example: LEON3)
 # RUN apt-get update && apt-get install -y gcc-sparc64-linux-gnu
