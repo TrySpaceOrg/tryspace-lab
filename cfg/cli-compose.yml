@@ -1,0 +1,69 @@
+# Start
+#   docker compose -f cli-compose.yml up
+# View specific containers
+#   docker attach tryspace-comp-demo-cli
+#   docker attach tryspace-sim
+#   docker attach tryspace-director
+services:
+  tryspace-sim:
+    image: tryspace-server:latest
+    container_name: tryspace-sim
+    networks:
+      - tryspace-net
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    environment:
+      - NUM_CLIENTS=${NUM_CLIENTS:-1}
+    command: ["/bin/sh", "-c", "/app/simulith_server_standalone $${NUM_CLIENTS}"]
+    cpus: "4.0"
+    mem_limit: 2g
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=1g
+    security_opt:
+      - seccomp:unconfined
+    privileged: false
+
+  tryspace-director:
+    image: tryspace-director:latest
+    container_name: tryspace-director
+    networks:
+      - tryspace-net
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    depends_on:
+      - tryspace-sim
+    command: ["/app/simulith_director_standalone"]
+    cpus: "1.0"
+    mem_limit: 512m
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=100m
+
+  tryspace-comp-demo-cli:
+    image: tryspace-comp-demo-cli:latest
+    container_name: tryspace-comp-demo-cli
+    networks:
+      - tryspace-net
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    depends_on:
+      - tryspace-sim
+      - tryspace-director
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=100m
+
+networks:
+  tryspace-net:
+    driver: bridge
+
+volumes:
+  simulith_ipc:
+    driver: local

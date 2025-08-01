@@ -1,5 +1,5 @@
 # Makefile for TrySpace Lab development
-.PHONY: all build build-fsw build-gsw build-sim debug clean container runtime start stop
+.PHONY: all build build-fsw build-gsw build-sim build-cli debug clean container runtime start stop cli
 
 export BUILD_IMAGE_NAME ?= tryspace-lab
 
@@ -18,6 +18,11 @@ env:
 build: env
 	$(MAKE) build-fsw
 	$(MAKE) build-sim
+
+build-cli: env
+	$(MAKE) container
+	cd $(CURDIR)/comp/demo/cli && $(MAKE) runtime
+	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
 
 build-fsw:
 	docker run --rm -it -v $(CURDIR):$(CURDIR) --name "tryspace_fsw_build" -w $(CURDIR)/fsw --user $(shell id -u):$(shell id -g) --sysctl fs.mqueue.msg_max=10000 --ulimit rtprio=99 --cap-add=sys_nice $(BUILD_IMAGE_NAME) make -j build-fsw
@@ -57,6 +62,10 @@ runtime: env
 start: env
 	docker compose -f ./cfg/lab-compose.yml up
 
+cli: env
+	$(MAKE) build-cli
+	docker compose -f ./cfg/cli-compose.yml up
+
 start-fsw:
 	cd fsw && $(MAKE) start
 
@@ -67,4 +76,5 @@ start-sim:
 	cd simulith && $(MAKE) start
 
 stop:
+	docker compose -f ./cfg/cli-compose.yml down
 	docker compose -f ./cfg/lab-compose.yml down
