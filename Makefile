@@ -83,6 +83,7 @@ runtime: env
 
 real-clean: clean
 	docker ps -a --filter "name=tryspace-" -q | xargs -r docker rm -f
+	docker images "tryspace-*" -q | xargs -r docker rmi
 
 start: env
 	docker compose -f ./cfg/lab-compose.yml up

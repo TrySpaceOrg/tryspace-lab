@@ -103,6 +103,8 @@ def main():
 
         # 5. Scenario-level 'overrides' dict
         overrides = merged["scenario_cfg"].get("overrides", {})
+        if overrides is None:
+            overrides = {}
         comp_cfg.update(overrides)
 
         # Try to find a template for this component
