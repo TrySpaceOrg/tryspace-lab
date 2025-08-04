@@ -1,0 +1,6 @@
+build:
+  missions:
+    - name: "drm"
+      config_file: "drm/drm.yaml"
+  components:
+    - name: "demo"

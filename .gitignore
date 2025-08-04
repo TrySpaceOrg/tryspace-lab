@@ -1,3 +1,5 @@
 .vscode
 build
 cfg/.env
+cfg/active.yaml
+cfg/build.yaml
