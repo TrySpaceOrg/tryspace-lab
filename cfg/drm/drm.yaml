@@ -1,0 +1,8 @@
+mission_name: "drm"
+components:
+  - name: "demo"
+scenarios:
+  - name: "nominal"
+    config_file: "drm/scenarios/drm-nominal.yaml"
+  - name: "flight"
+    config_file: "drm/scenarios/drm-flight.yaml"
