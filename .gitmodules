@@ -10,3 +10,7 @@
 	path = simulith
 	url = https://github.com/TrySpaceOrg/tryspace-simulith.git
 	branch = main
+[submodule "gsw"]
+	path = gsw
+	url = https://github.com/TrySpaceOrg/tryspace-ext-yamcs.git
+	branch = master
