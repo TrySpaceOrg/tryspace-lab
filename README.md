@@ -9,6 +9,10 @@ Discussions are a great place to engage with the community and maintainers.
 
 For bug reports or feature requests, please open a [GitHub Issue](https://github.com/TrySpaceOrg/tryspace-lab/issues).
 
+## Documentation
+
+The full documentation for TrySpace Lab is available at [TrySpace Atlas](https://tryspaceorg.github.io/).
+
 ## Contributing
 
 We welcome contributions from everyone. Please review our [Contributing Guidelines](CONTRIBUTING.md) for details on how to get started.

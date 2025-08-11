@@ -14,3 +14,7 @@
 	path = gsw
 	url = https://github.com/TrySpaceOrg/tryspace-ext-yamcs.git
 	branch = master
+[submodule "atlas"]
+	path = atlas
+	url = https://github.com/TrySpaceOrg/TrySpaceOrg.github.io.git
+	branch = main
