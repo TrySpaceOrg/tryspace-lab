@@ -22,8 +22,9 @@ cfg:
 	docker run --rm -v $(CURDIR):$(CURDIR) -w $(CURDIR)/cfg --user $(shell id -u):$(shell id -g) $(BUILD_IMAGE_NAME) python3 tryspace-orchestrator.py
 
 build: env
-	$(MAKE) build-fsw
 	$(MAKE) build-sim
+	$(MAKE) build-gsw
+	$(MAKE) build-fsw
 
 build-cli: env
 	$(MAKE) container
@@ -38,6 +39,7 @@ build-fsw:
 	docker run --rm -it -v $(CURDIR):$(CURDIR) --name "tryspace_fsw_build" -w $(CURDIR)/fsw --user $(shell id -u):$(shell id -g) --sysctl fs.mqueue.msg_max=10000 --ulimit rtprio=99 --cap-add=sys_nice $(BUILD_IMAGE_NAME) make -j build-fsw
 
 build-gsw:
+	cd $(CURDIR)/gsw && $(MAKE) runtime
 
 build-sim:
 	docker run --rm -it -v $(CURDIR):$(CURDIR) --name "tryspace_sim_build" -w $(CURDIR)/simulith --user $(shell id -u):$(shell id -g) $(BUILD_IMAGE_NAME) make -j build-sim
@@ -63,7 +65,7 @@ clean-fsw:
 	cd fsw && $(MAKE) clean
 
 clean-gsw:
-	
+	cd gsw && $(MAKE) clean
 
 clean-sim:
 	cd simulith && $(MAKE) clean
@@ -75,15 +77,20 @@ cli: env
 container:
 	docker build -t $(BUILD_IMAGE_NAME) -f cfg/Dockerfile.base --build-arg USER_ID=$(shell id -u) --build-arg GROUP_ID=$(shell id -g) .
 
-runtime: env
-	$(MAKE) container
-	cd $(CURDIR)/comp/demo/sim && $(MAKE) runtime
-	cd $(CURDIR)/fsw && $(MAKE) runtime
-	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
-
 real-clean: clean
 	docker ps -a --filter "name=tryspace-" -q | xargs -r docker rm -f
 	docker images "tryspace-*" -q | xargs -r docker rmi
+	docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm
+	docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm
+	docker network ls -q --filter "name=tryspace-net" | xargs -r docker network rm
+	docker network ls -q --filter "name=cfg_tryspace-net" | xargs -r docker network rm
+
+runtime: env
+	$(MAKE) container
+	cd $(CURDIR)/comp/demo/sim && $(MAKE) runtime
+	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
+	cd $(CURDIR)/fsw && $(MAKE) runtime
+	$(MAKE) build-gsw
 
 start: env
 	docker compose -f ./cfg/lab-compose.yml up
@@ -92,7 +99,7 @@ start-fsw:
 	cd fsw && $(MAKE) start
 
 start-gsw:
-
+	cd gsw && $(MAKE) start
 
 start-sim:
 	cd simulith && $(MAKE) start

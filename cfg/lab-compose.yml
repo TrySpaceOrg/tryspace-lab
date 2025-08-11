@@ -5,6 +5,26 @@
 #   docker attach tryspace-director
 #   docker attach tryspace-server
 services:
+  tryspace-gsw:
+    image: tryspace-gsw:latest
+    container_name: tryspace-gsw
+    networks:
+      - tryspace-net
+    restart: unless-stopped
+    attach: false
+    ports:
+      - "8090:8090"           # YAMCS Web Interface
+    volumes:
+      - gsw-data:/app/yamcs-data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    cpus: "2.0"
+    mem_limit: 1g
+
   tryspace-server:
     image: tryspace-server:latest
     container_name: tryspace-server
@@ -77,4 +97,6 @@ networks:
 
 volumes:
   simulith_ipc:
+    driver: local
+  gsw-data:
     driver: local
