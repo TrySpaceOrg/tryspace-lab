@@ -1,5 +1,5 @@
 # Makefile for TrySpace Lab development
-.PHONY: all build build-fsw build-gsw build-sim build-cli cfg clean container debug real-clean runtime start stop cli
+.PHONY: all build build-fsw build-gsw build-sim build-cli cfg cli clean container debug fsw gsw real-clean runtime sim start stop
 
 export BUILD_IMAGE_NAME ?= tryspace-lab
 
@@ -77,6 +77,16 @@ cli: env
 container:
 	docker build -t $(BUILD_IMAGE_NAME) -f cfg/Dockerfile.base --build-arg USER_ID=$(shell id -u) --build-arg GROUP_ID=$(shell id -g) .
 
+fsw: env
+	cd $(CURDIR)/fsw && $(MAKE) runtime
+
+gsw: env
+	$(MAKE) build-gsw
+
+sim: env
+	cd $(CURDIR)/comp/demo/sim && $(MAKE) runtime
+	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
+
 real-clean: clean
 	docker ps -a --filter "name=tryspace-" -q | xargs -r docker rm -f
 	docker images "tryspace-*" -q | xargs -r docker rmi
@@ -87,10 +97,9 @@ real-clean: clean
 
 runtime: env
 	$(MAKE) container
-	cd $(CURDIR)/comp/demo/sim && $(MAKE) runtime
-	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
-	cd $(CURDIR)/fsw && $(MAKE) runtime
-	$(MAKE) build-gsw
+	$(MAKE) sim
+	$(MAKE) fsw
+	$(MAKE) gsw
 
 start: env
 	docker compose -f ./cfg/lab-compose.yml up
