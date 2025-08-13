@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install GNU Make
+        run: sudo apt-get update && sudo apt-get install -y make
+
+      - name: Build Container
+        run: |
+          make container
+
+      - name: Build SIM
+        run: |
+          make sim
+
+      - name: Build FSW
+        run: |
+            make fsw
+
+      - name: Build GSW
+        run: |
+          make gsw
