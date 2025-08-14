@@ -18,6 +18,12 @@ jobs:
           fetch-depth: 1
       - name: Build Simulith
         run: |
+          for dir in $(pwd)/comp/*/sim ; do \
+            if [ -d "$dir" ] && [ -f "$dir/Makefile" ]; then \
+              echo "Building component in $dir" \
+              make -C "$dir" build-sim \
+            fi \
+          done \
           cd simulith && make build-sim
 
   build-fsw:
@@ -32,4 +38,4 @@ jobs:
           fetch-depth: 1
       - name: Build FSW
         run: |
-          cd fsw && make build-fsw
+          cd cfg && python3 tryspace-orchestrator.py && cd ../fsw && make build-fsw
