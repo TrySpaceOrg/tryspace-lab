@@ -5,6 +5,9 @@ on:
     branches:
       - '**'
 
+env:
+  CTEST_OUTPUT_ON_FAILURE: true
+
 jobs:
   build-simulith:
     runs-on: ubuntu-latest
@@ -46,3 +49,25 @@ jobs:
           python3 tryspace-orchestrator.py
           cd ../fsw
           make build-fsw
+
+  build-test:
+    runs-on: ubuntu-latest
+    container:
+        image: tryspaceorg/tryspace-lab
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+      - name: Build Tests
+        run: |
+          cd cfg
+          python3 tryspace-orchestrator.py
+          cd ../fsw
+          make build-test
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          verbose: true
+          recurse_submodules: true

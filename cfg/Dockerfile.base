@@ -15,7 +15,11 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
+    curl \
+    gcovr \
     git \
+    gpg \
+    lcov \
     libsocketcan-dev \
     libzmq3-dev \
     pkg-config \
@@ -25,7 +29,7 @@ RUN apt-get update && \
 
 # Install orchestrator requirements for python
 COPY cfg/requirements.txt /requirements.txt
-RUN pip3 install --break-system-packages --no-cache-dir --upgrade -r /requirements.txt && pip cache purge
+RUN pip3 install --break-system-packages --no-cache-dir --upgrade -r /requirements.txt
 
 # Create user for development (matches host user)
 ARG USER_ID=1000
