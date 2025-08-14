@@ -68,7 +68,6 @@ debug: env
 
 env:
 	@command -v docker >/dev/null 2>&1 || { echo "Error: docker is not installed or not in PATH."; exit 1; }
-	@command -v python3 >/dev/null 2>&1 || { echo "Error: python3 is not installed or not in PATH."; exit 1; }
 	@if [ ! -f $(ENV_FILE) ]; then \
 		echo "Creating $(ENV_FILE) with current user UID/GID..."; \
 		mkdir -p $(CFG_DIR); \
