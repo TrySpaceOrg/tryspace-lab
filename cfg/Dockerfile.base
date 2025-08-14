@@ -2,8 +2,8 @@
 # https://github.com/TrySpaceOrg/tryspace-lab
 # 
 # Assumes build using `make container` from top level of tryspace-lab repository
-# 
-# docker push ghcr.io/tryspaceorg/tryspace-lab:latest
+#
+# docker push tryspaceorg/tryspace-lab:<tag>
 #
 
 FROM debian:bookworm-slim@sha256:6ac2c08566499cc2415926653cf2ed7c3aedac445675a013cc09469c9e118fdd

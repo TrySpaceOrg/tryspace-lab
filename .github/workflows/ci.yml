@@ -6,7 +6,7 @@ on:
       - '**'
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,14 +29,34 @@ jobs:
         run: |
           make container
 
-      - name: Build SIM
+  build-simulith:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Simulith
         run: |
           make sim
 
+  build-fsw:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
       - name: Build FSW
         run: |
             make fsw
 
+  build-gsw:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
       - name: Build GSW
         run: |
           make gsw
+
+  build-cli:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build CLI
+        run: |
+          make cli
