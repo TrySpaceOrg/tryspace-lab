@@ -24,6 +24,8 @@ clean:
 		$(MAKE) clean-fsw; \
 		$(MAKE) clean-gsw; \
 		$(MAKE) clean-sim; \
+		docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm
+		docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm
 	else \
 		echo "Docker image $(BUILD_IMAGE) does not exist. Skipping clean subcommands."; \
 	fi
@@ -129,6 +131,6 @@ uninstall: clean
 	docker network ls -q --filter "name=tryspace-net" | xargs -r docker network rm
 	docker network ls -q --filter "name=cfg_tryspace-net" | xargs -r docker network rm
 	@echo ""
-	@echo "To remove everything docker run: "
+	@echo "To cleanup everything docker even unrelated to TrySpace: "
 	@echo "  docker system prune -a"
 	@echo ""
