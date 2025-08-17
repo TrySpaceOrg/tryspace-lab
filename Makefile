@@ -2,7 +2,7 @@
 .PHONY: build clean clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug env fsw gsw help sim start stop uninstall
 
 # Build image name
-export BUILD_IMAGE ?= tryspaceorg/tryspace-lab
+export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:0.0.0
 
 # Common paths
 CFG_DIR := $(CURDIR)/cfg
@@ -24,8 +24,8 @@ clean:
 		$(MAKE) clean-fsw; \
 		$(MAKE) clean-gsw; \
 		$(MAKE) clean-sim; \
-		docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm
-		docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm
+		docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm \
+		docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm \
 	else \
 		echo "Docker image $(BUILD_IMAGE) does not exist. Skipping clean subcommands."; \
 	fi

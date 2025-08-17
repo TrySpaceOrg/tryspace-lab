@@ -1,5 +1,3 @@
-# Release 0.0.0
-
 ## Code and Feature Readiness
 
 Provide a brief description of the purpose of this release.
@@ -10,7 +8,7 @@ Provide a brief description of the purpose of this release.
 ## Container and Image Management
 
 - [ ] **Containers updated**: Update container versions to latest packages available.
-- [ ] **Containers versioned**: The container images are date tagged and pushed.
+- [ ] **Containers versioned**: The container images are tagged and pushed.
 - [ ] **Container CI updates**: CI updated to use latest containers
 - [ ] **Verify image functionality**: Manually verified containers to ensure they work as expected.
 
