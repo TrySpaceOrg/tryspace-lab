@@ -47,5 +47,5 @@ Please review our [Contributing Guidelines](CONTRIBUTING.md) for details on how 
 
 GitHub maintains the full set of [release notes](https://github.com/TrySpaceOrg/tryspace-lab/releases).
 Here is the short history for quick reference:
-* 0.0.0
+* 0.0.0 - August 17th, 2025
   * Initial proof of concept

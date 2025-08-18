@@ -20,8 +20,8 @@ Provide a brief description of the purpose of this release.
 
 ## Works for Me
 
-- [ ] **Old Laptop**: Runs on the old laptop
-- [ ] **Virtual Machine**: Runs within a standard Ubuntu VM
+- [ ] **Raspberry Pi 3 Model B**: Runs on an old 64-bit RPi
+- [ ] **Virtual Machine**: Runs within a standard Ubuntu VM (4 core, 8GB)
 - [ ] **Windows Subsystem for Linux**: Runs on WSL
 
 ## Post-Release
