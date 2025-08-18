@@ -1,5 +1,5 @@
 # Makefile for TrySpace Lab development
-.PHONY: build clean clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug fsw gsw help sim start stop uninstall
+.PHONY: build clean clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug fsw gsw help mold sim start stop uninstall
 
 # Build image name
 export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:0.0.0
@@ -74,6 +74,15 @@ fsw: cfg
 gsw: cfg
 	cd $(CURDIR)/gsw && $(MAKE) runtime
 
+mold:
+	@if [ "$(COMP)" = "" ]; then \
+		echo "Error: COMP parameter is required"; \
+		echo "Usage: make mold COMP=<name>"; \
+		echo "Example: make mold COMP=my_sensor"; \
+		exit 1; \
+	fi
+	python3 $(CFG_DIR)/tryspace-comp-mold.py "$(COMP)"
+
 help:
 	@echo "Usage: make <target>"
 	@echo "Targets:"
@@ -89,6 +98,7 @@ help:
 	@echo "  debug         - Start a debug shell in the container"
 	@echo "  fsw           - Build FSW"
 	@echo "  gsw           - Build GSW"
+	@echo "  mold          - Create new component from demo template (Usage: make mold COMP=<name>)"
 	@echo "  sim           - Build Simulith and component simulators"
 	@echo "  start         - Start lab services"
 	@echo "  stop          - Stop lab and CLI services, clean up Docker images"
