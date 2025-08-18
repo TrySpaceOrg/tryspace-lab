@@ -12,7 +12,7 @@ jobs:
   build-simulith:
     runs-on: ubuntu-latest
     container:
-        image: tryspaceorg/tryspace-lab
+        image: tryspaceorg/tryspace-lab:0.0.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
   build-fsw:
     runs-on: ubuntu-latest
     container:
-        image: tryspaceorg/tryspace-lab
+        image: tryspaceorg/tryspace-lab:0.0.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,7 +53,7 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     container:
-        image: tryspaceorg/tryspace-lab
+        image: tryspaceorg/tryspace-lab:0.0.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

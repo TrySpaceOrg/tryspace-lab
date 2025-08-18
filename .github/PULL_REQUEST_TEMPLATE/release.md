@@ -1,5 +1,3 @@
-# Release 0.0.0
-
 ## Code and Feature Readiness
 
 Provide a brief description of the purpose of this release.
@@ -10,7 +8,7 @@ Provide a brief description of the purpose of this release.
 ## Container and Image Management
 
 - [ ] **Containers updated**: Update container versions to latest packages available.
-- [ ] **Containers versioned**: The container images are date tagged and pushed.
+- [ ] **Containers versioned**: The container images are tagged and pushed.
 - [ ] **Container CI updates**: CI updated to use latest containers
 - [ ] **Verify image functionality**: Manually verified containers to ensure they work as expected.
 
@@ -22,11 +20,11 @@ Provide a brief description of the purpose of this release.
 
 ## Works for Me
 
-- [ ] **Old Laptop**: Runs on the old laptop
-- [ ] **Virtual Machine**: Runs within a standard Ubuntu VM
+- [ ] **Raspberry Pi 3 Model B**: Runs on an old 64-bit RPi
+- [ ] **Virtual Machine**: Runs within a standard Ubuntu VM (4 core, 8GB)
 - [ ] **Windows Subsystem for Linux**: Runs on WSL
 
-## Post-Release
-
+## Release
+- [ ] **Merge branches**: all features into `dev`, then `dev` into `main`
 - [ ] **Create GitHub release**: A new release will be created from the `main` branch with the new version tag.
 - [ ] **Announce the release**: The release will be announced on all relevant platforms.

@@ -1,15 +1,14 @@
 # Makefile for TrySpace Lab development
-.PHONY: build clean clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug env fsw gsw help sim start stop uninstall
+.PHONY: build clean clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug fsw gsw help sim start stop uninstall
 
 # Build image name
-export BUILD_IMAGE ?= tryspaceorg/tryspace-lab
+export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:0.0.0
 
 # Common paths
 CFG_DIR := $(CURDIR)/cfg
-ENV_FILE := $(CFG_DIR)/.env
 
 # Commands
-build: env
+build: cfg
 	$(MAKE) sim
 	$(MAKE) fsw
 	$(MAKE) gsw
@@ -24,10 +23,12 @@ clean:
 		$(MAKE) clean-fsw; \
 		$(MAKE) clean-gsw; \
 		$(MAKE) clean-sim; \
+		docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm \
+		docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm \
 	else \
 		echo "Docker image $(BUILD_IMAGE) does not exist. Skipping clean subcommands."; \
 	fi
-	rm -f $(ENV_FILE) $(CFG_DIR)/active.yaml $(CFG_DIR)/build.yaml 
+	rm -f $(CFG_DIR)/active.yaml $(CFG_DIR)/build.yaml 
 
 clean-cli:
 	@for dir in $(CURDIR)/comp/*/cli ; do \
@@ -50,7 +51,7 @@ clean-sim:
 	done
 	cd simulith && $(MAKE) clean
 
-cli: env
+cli: cfg
 	$(MAKE) container
 	@for dir in $(CURDIR)/comp/*/cli ; do \
         if [ -f "$$dir/Makefile" ]; then \
@@ -61,26 +62,16 @@ cli: env
 	docker compose -f ./cfg/cli-compose.yml up
 
 container: cfg/Dockerfile.base
+	@command -v docker >/dev/null 2>&1 || { echo "Error: docker is not installed or not in PATH."; exit 1; }
 	docker build -t $(BUILD_IMAGE) -f cfg/Dockerfile.base --build-arg USER_ID=$(shell id -u) --build-arg GROUP_ID=$(shell id -g) .
 
-debug: env
+debug: cfg
 	docker run --rm -it -v $(CURDIR):$(CURDIR) --name "tryspace_fsw_debug" -w $(CURDIR) --user $(shell id -u):$(shell id -g) --sysctl fs.mqueue.msg_max=10000 --ulimit rtprio=99 --cap-add=sys_nice $(BUILD_IMAGE) /bin/bash
-
-env:
-	@command -v docker >/dev/null 2>&1 || { echo "Error: docker is not installed or not in PATH."; exit 1; }
-	@if [ ! -f $(ENV_FILE) ]; then \
-		echo "Creating $(ENV_FILE) with current user UID/GID..."; \
-		mkdir -p $(CFG_DIR); \
-		echo "UID=$$(id -u)" > $(ENV_FILE); \
-		echo "GID=$$(id -g)" >> $(ENV_FILE); \
-		echo "Created $(ENV_FILE)"; \
-	fi
-	$(MAKE) cfg
-
-fsw: env
+	
+fsw: cfg
 	cd $(CURDIR)/fsw && $(MAKE) runtime
 
-gsw: env
+gsw: cfg
 	cd $(CURDIR)/gsw && $(MAKE) runtime
 
 help:
@@ -96,7 +87,6 @@ help:
 	@echo "  clean-sim     - Clean simulation components"
 	@echo "  container     - Build the Docker container"
 	@echo "  debug         - Start a debug shell in the container"
-	@echo "  env           - Create .env file and check required tools"
 	@echo "  fsw           - Build FSW"
 	@echo "  gsw           - Build GSW"
 	@echo "  sim           - Build Simulith and component simulators"
@@ -104,7 +94,7 @@ help:
 	@echo "  stop          - Stop lab and CLI services, clean up Docker images"
 	@echo "  uninstall     - Remove containers, images, volumes, and networks"
 
-sim: env
+sim: cfg
 	@for dir in $(CURDIR)/comp/*/sim ; do \
 		if [ -d "$$dir" ] && [ -f "$$dir/Makefile" ]; then \
 			echo "Building component in $$dir"; \
@@ -113,7 +103,7 @@ sim: env
 	done
 	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
 
-start: env
+start: cfg
 	docker compose -f ./cfg/lab-compose.yml up
 
 stop:
@@ -129,6 +119,6 @@ uninstall: clean
 	docker network ls -q --filter "name=tryspace-net" | xargs -r docker network rm
 	docker network ls -q --filter "name=cfg_tryspace-net" | xargs -r docker network rm
 	@echo ""
-	@echo "To remove everything docker run: "
+	@echo "To cleanup everything docker even unrelated to TrySpace: "
 	@echo "  docker system prune -a"
 	@echo ""
