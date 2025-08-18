@@ -52,6 +52,9 @@ def ignore_patterns(dir, files):
         # Ignore build directories
         elif file == 'build':
             ignored.append(file)
+        # Ignore device configuration
+        elif file == 'device_cfg.h':
+            ignored.append(file)
         # Ignore common temporary/cache files
         elif file.startswith('.') and file.endswith(('.swp', '.tmp', '.cache')):
             ignored.append(file)
@@ -79,9 +82,18 @@ def replace_content_in_files(target_dir, name_variants):
     
     # Define replacement patterns
     replacements = [
+        # Component name variants
         ('DEMO', name_variants['upper']),
         ('Demo', name_variants['first']),
-        ('demo', name_variants['lower'])
+        ('demo', name_variants['lower']),
+        # Change USART device from 5 to 9 in device config
+        ('/dev/usart_5', '/dev/usart_9'),
+        ('handle: 5', 'handle: 9'),
+        # Change message IDs to avoid conflicts (A to C, B to D)
+        ('0x18FA', '0x18FC'),
+        ('0x18FB', '0x18FD'),
+        ('0x08FA', '0x08FC'),
+        ('0x08FB', '0x08FD')
     ]
     
     # Find all text files (exclude binary files)
@@ -179,8 +191,18 @@ def main():
         print()
         print("Next steps:")
         print(f"  1. Review the generated component in ./comp/{component_name}")
-        print(f"  2. Build the component: make -C comp/{component_name} or make sim")
-        print(f"  3. Customize the component for your specific needs")
+        print(f"  2. Add the component to your active mission, default is ./cfg/drm/drm.yaml")
+        print(f"  3. Add the component to the FSW definitions:")
+        print(f"       ./fsw/tryspace_defs/cpu1_cfe_es_startup.scr")
+        print(f"       ./fsw/tryspace_defs/tables/sch_def_msgtbl.c")
+        print(f"       ./fsw/tryspace_defs/tables/sch_def_schtbl.c")
+        print(f"       ./fsw/tryspace_defs/tables/to_lab_sub.c")
+        print(f"       ./fsw/tryspace_defs/targets.cmake")
+        print(f"  4. Add the component to the GSW definitions:")
+        print(f"       ./gsw/src/main/yamcs/etc/etc/yamcs.nos3.yaml")
+        print(f"  5. Build like you would normally and confirm new component runs")
+        print(f"  6. Customize the component for your specific needs")
+        print()
         
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
