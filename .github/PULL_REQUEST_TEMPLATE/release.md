@@ -24,7 +24,7 @@ Provide a brief description of the purpose of this release.
 - [ ] **Virtual Machine**: Runs within a standard Ubuntu VM (4 core, 8GB)
 - [ ] **Windows Subsystem for Linux**: Runs on WSL
 
-## Post-Release
-
+## Release
+- [ ] **Merge branches**: all features into `dev`, then `dev` into `main`
 - [ ] **Create GitHub release**: A new release will be created from the `main` branch with the new version tag.
 - [ ] **Announce the release**: The release will be announced on all relevant platforms.
