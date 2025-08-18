@@ -1,0 +1,20 @@
+[submodule "fsw"]
+	path = fsw
+	url = https://github.com/TrySpaceOrg/tryspace-fsw.git
+	branch = main
+[submodule "comp/demo"]
+	path = comp/demo
+	url = https://github.com/TrySpaceOrg/tryspace-comp-demo.git
+	branch = main
+[submodule "simulith"]
+	path = simulith
+	url = https://github.com/TrySpaceOrg/tryspace-simulith.git
+	branch = main
+[submodule "gsw"]
+	path = gsw
+	url = https://github.com/TrySpaceOrg/tryspace-ext-yamcs.git
+	branch = master
+[submodule "atlas"]
+	path = atlas
+	url = https://github.com/TrySpaceOrg/TrySpaceOrg.github.io.git
+	branch = main

@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - '**'
+
+env:
+  CTEST_OUTPUT_ON_FAILURE: true
+
+jobs:
+  build-simulith:
+    runs-on: ubuntu-latest
+    container:
+        image: tryspaceorg/tryspace-lab:0.0.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+      - name: Build Simulith
+        run: |
+          cd cfg
+          python3 tryspace-orchestrator.py
+          cd ..
+          for dir in $(pwd)/comp/*/sim ; do
+            if [ -d "$dir" ] && [ -f "$dir/Makefile" ]; then
+              echo "Building component in $dir"
+              make -C "$dir" build-sim
+            fi
+          done
+          cd simulith
+          make build-sim
+
+  build-fsw:
+    runs-on: ubuntu-latest
+    container:
+        image: tryspaceorg/tryspace-lab:0.0.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+      - name: Build FSW
+        run: |
+          cd cfg
+          python3 tryspace-orchestrator.py
+          cd ../fsw
+          make build-fsw
+
+  build-test:
+    runs-on: ubuntu-latest
+    container:
+        image: tryspaceorg/tryspace-lab:0.0.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+      - name: Build Tests
+        run: |
+          cd cfg
+          python3 tryspace-orchestrator.py
+          cd ../fsw
+          make build-test
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          verbose: true
+          recurse_submodules: true

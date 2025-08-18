@@ -1,0 +1,94 @@
+# Start
+#   docker compose -f lab-compose.yml up
+# View specific containers
+#   docker attach tryspace-fsw
+#   docker attach tryspace-director
+#   docker attach tryspace-server
+services:
+  tryspace-gsw:
+    image: tryspace-gsw:latest
+    container_name: tryspace-gsw
+    networks:
+      - tryspace-net
+    attach: false
+    ports:
+      - "8090:8090"           # YAMCS Web Interface
+    volumes:
+      - gsw-data:/app/yamcs-data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    cpus: "2.0"
+    mem_limit: 1g
+
+  tryspace-server:
+    image: tryspace-server:latest
+    container_name: tryspace-server
+    networks:
+      - tryspace-net
+    stdin_open: true
+    tty: true
+    environment:
+      - NUM_CLIENTS=${NUM_CLIENTS:-2}
+    command: ["/bin/sh", "-c", "/app/simulith_server_standalone $${NUM_CLIENTS}"]
+    cpus: "4.0"
+    mem_limit: 2g
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=1g
+    privileged: false
+
+  tryspace-director:
+    image: tryspace-director:latest
+    container_name: tryspace-director
+    networks:
+      - tryspace-net
+    stdin_open: true
+    tty: true
+    depends_on:
+      - tryspace-server
+    command: ["/app/simulith_director_standalone"]
+    cpus: "1.0"
+    mem_limit: 512m
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=100m
+
+  tryspace-fsw:
+    image: tryspace-fsw:latest
+    container_name: tryspace-fsw
+    networks:
+      - tryspace-net
+    stdin_open: true
+    tty: true
+    depends_on:
+      - tryspace-server
+      - tryspace-director
+    sysctls:
+      - fs.mqueue.msg_max=10000
+    ulimits:
+      rtprio: 99
+    cap_add:
+      - SYS_NICE
+    cpus: "4.0"
+    mem_limit: 2g
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=1g
+    privileged: false
+    
+networks:
+  tryspace-net:
+    driver: bridge
+
+volumes:
+  simulith_ipc:
+    driver: local
+  gsw-data:
+    driver: local

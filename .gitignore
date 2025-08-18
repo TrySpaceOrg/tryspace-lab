@@ -1,0 +1,4 @@
+.vscode
+build
+cfg/active.yaml
+cfg/build.yaml
