@@ -47,7 +47,7 @@ def ignore_patterns(dir, files):
     ignored = []
     for file in files:
         # Ignore git files and directories
-        if file == '.git' or file == '.gitignore' or file == '.gitmodules':
+        if file == '.git' or file == '.gitmodules':
             ignored.append(file)
         # Ignore build directories
         elif file == 'build':
