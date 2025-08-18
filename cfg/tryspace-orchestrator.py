@@ -1,4 +1,3 @@
-from jinja2 import Environment, FileSystemLoader
 #!/usr/bin/env python3
 """
 Orchestrator for tryspace-lab configuration.
@@ -6,6 +5,7 @@ Loads global, mission, and scenario YAMLs, merges them, and writes to active.yam
 """
 import sys
 import os
+from jinja2 import Environment, FileSystemLoader
 import yaml
 
 CFG_DIR = os.path.dirname(os.path.abspath(__file__))

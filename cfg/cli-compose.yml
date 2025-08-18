@@ -10,7 +10,6 @@ services:
     container_name: tryspace-sim
     networks:
       - tryspace-net
-    restart: unless-stopped
     stdin_open: true
     tty: true
     environment:
@@ -22,8 +21,6 @@ services:
       - simulith_ipc:/tmp
     tmpfs:
       - /dev/shm:noexec,nosuid,size=1g
-    security_opt:
-      - seccomp:unconfined
     privileged: false
 
   tryspace-director:
@@ -31,7 +28,6 @@ services:
     container_name: tryspace-director
     networks:
       - tryspace-net
-    restart: unless-stopped
     stdin_open: true
     tty: true
     depends_on:
@@ -49,7 +45,6 @@ services:
     container_name: tryspace-comp-demo-cli
     networks:
       - tryspace-net
-    restart: unless-stopped
     stdin_open: true
     tty: true
     depends_on:

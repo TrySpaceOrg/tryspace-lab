@@ -10,7 +10,6 @@ services:
     container_name: tryspace-gsw
     networks:
       - tryspace-net
-    restart: unless-stopped
     attach: false
     ports:
       - "8090:8090"           # YAMCS Web Interface
@@ -30,7 +29,6 @@ services:
     container_name: tryspace-server
     networks:
       - tryspace-net
-    restart: unless-stopped
     stdin_open: true
     tty: true
     environment:
@@ -42,8 +40,6 @@ services:
       - simulith_ipc:/tmp
     tmpfs:
       - /dev/shm:noexec,nosuid,size=1g
-    security_opt:
-      - seccomp:unconfined
     privileged: false
 
   tryspace-director:
@@ -51,7 +47,6 @@ services:
     container_name: tryspace-director
     networks:
       - tryspace-net
-    restart: unless-stopped
     stdin_open: true
     tty: true
     depends_on:
@@ -69,7 +64,6 @@ services:
     container_name: tryspace-fsw
     networks:
       - tryspace-net
-    restart: unless-stopped
     stdin_open: true
     tty: true
     depends_on:
@@ -87,8 +81,6 @@ services:
       - simulith_ipc:/tmp
     tmpfs:
       - /dev/shm:noexec,nosuid,size=1g
-    security_opt:
-      - seccomp:unconfined
     privileged: false
     
 networks:
