@@ -52,12 +52,12 @@ clean-sim:
 
 cli: cfg
 	$(MAKE) container
+	$(MAKE) sim
 	@for dir in $(CURDIR)/comp/*/cli ; do \
         if [ -f "$$dir/Makefile" ]; then \
             $(MAKE) -C "$$dir" runtime; \
         fi; \
     done
-	$(MAKE) sim
 	docker compose -f ./cfg/cli-compose.yaml up
 
 container: cfg/Dockerfile.base
@@ -107,7 +107,7 @@ sim: cfg
 	@for dir in $(CURDIR)/comp/*/sim ; do \
 		if [ -d "$$dir" ] && [ -f "$$dir/Makefile" ]; then \
 			echo "Building component in $$dir"; \
-			$(MAKE) -C "$$dir" runtime; \
+			$(MAKE) -C "$$dir" build; \
 		fi; \
 	done
 	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
