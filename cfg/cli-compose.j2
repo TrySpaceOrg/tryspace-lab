@@ -1,9 +1,5 @@
-# Start
-#   docker compose -f cli-compose.yml up
-# View specific containers
-#   docker attach tryspace-comp-demo-cli
-#   docker attach tryspace-sim
-#   docker attach tryspace-director
+# Jinja2 template for dynamic CLI Compose file
+# Usage: Render with orchestrator using active CLI component
 services:
   tryspace-sim:
     image: tryspace-server:latest
@@ -40,9 +36,9 @@ services:
     tmpfs:
       - /dev/shm:noexec,nosuid,size=100m
 
-  tryspace-comp-demo-cli:
-    image: tryspace-comp-demo-cli:latest
-    container_name: tryspace-comp-demo-cli
+  tryspace-comp-{{ cli_component }}-cli:
+    image: tryspace-comp-{{ cli_component }}-cli:latest
+    container_name: tryspace-comp-{{ cli_component }}-cli
     networks:
       - tryspace-net
     stdin_open: true

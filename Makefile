@@ -18,17 +18,16 @@ cfg: container
 
 clean:
 	$(MAKE) stop
-	@if docker image inspect $(BUILD_IMAGE):latest >/dev/null 2>&1; then \
+	@if docker image inspect $(BUILD_IMAGE) >/dev/null 2>&1; then \
 		$(MAKE) clean-cli; \
 		$(MAKE) clean-fsw; \
 		$(MAKE) clean-gsw; \
 		$(MAKE) clean-sim; \
-		docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm \
-		docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm \
+		docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm; \
+		docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm; \
 	else \
 		echo "Docker image $(BUILD_IMAGE) does not exist. Skipping clean subcommands."; \
 	fi
-	rm -f $(CFG_DIR)/active.yaml $(CFG_DIR)/build.yaml 
 
 clean-cli:
 	@for dir in $(CURDIR)/comp/*/cli ; do \
@@ -44,7 +43,7 @@ clean-gsw:
 	cd gsw && $(MAKE) clean
 
 clean-sim:
-	@for dir in $(CURDIR)/comp/* ; do \
+	@for dir in $(CURDIR)/comp/*/sim ; do \
 		if [ -d "$$dir" ] && [ -f "$$dir/Makefile" ]; then \
 			$(MAKE) -C "$$dir" clean; \
 		fi; \
@@ -58,8 +57,8 @@ cli: cfg
             $(MAKE) -C "$$dir" runtime; \
         fi; \
     done
-	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
-	docker compose -f ./cfg/cli-compose.yml up
+	$(MAKE) sim
+	docker compose -f ./cfg/cli-compose.yaml up
 
 container: cfg/Dockerfile.base
 	@command -v docker >/dev/null 2>&1 || { echo "Error: docker is not installed or not in PATH."; exit 1; }
@@ -114,14 +113,15 @@ sim: cfg
 	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
 
 start: cfg
-	docker compose -f ./cfg/lab-compose.yml up
+	docker compose -f ./cfg/lab-compose.yaml up
 
 stop:
-	docker compose -f ./cfg/cli-compose.yml down
-	docker compose -f ./cfg/lab-compose.yml down
+	docker compose -f ./cfg/cli-compose.yaml down --remove-orphans
+	docker compose -f ./cfg/lab-compose.yaml down --remove-orphans
 	docker images -f "dangling=true" -q | xargs -r docker rmi
 
 uninstall: clean
+	rm -f $(CFG_DIR)/active.yaml $(CFG_DIR)/build.yaml 
 	docker ps -a --filter "name=tryspace-" -q | xargs -r docker rm -f
 	docker images "tryspace-*" -q | xargs -r docker rmi
 	docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm

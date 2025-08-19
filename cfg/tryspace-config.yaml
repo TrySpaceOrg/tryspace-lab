@@ -4,3 +4,6 @@ build:
       config_file: "drm/drm.yaml"
   components:
     - name: "demo"
+    - name: "eps"
+  cli:
+    - name: "demo"

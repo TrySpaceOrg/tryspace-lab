@@ -40,13 +40,14 @@ def main():
         mission_cfg = load_yaml(mission_cfg_path)
         scenarios = mission_cfg.get("scenarios", [])
         scenario = scenarios[0]["name"] if scenarios else "nominal"
-        active = {"mission": mission, "scenario": scenario}
+        active = {"mission": mission, "scenario": scenario, "cli": "demo"}
         with open(ACTIVE_PATH, "w") as f:
             yaml.safe_dump(active, f)
         print(f"[orchestrator] Created {ACTIVE_PATH} with defaults: mission={mission}, scenario={scenario}")
 
     mission = active.get("mission")
     scenario = active.get("scenario", "nominal")
+    cli_component = active.get("cli", "demo")
 
     # Find mission config file
     mission_entry = next((m for m in global_cfg["build"]["missions"] if m["name"] == mission), None)
@@ -125,6 +126,20 @@ def main():
         else:
             print(f"[orchestrator] No config or template found for component '{comp_name}', skipping.")
 
+    # Render cli-compose.yaml from Jinja2 template using cli_component
+    cli_template_path = os.path.abspath(os.path.join(CFG_DIR))
+    cli_template_file = "cli-compose.j2"
+    cli_template_full_path = os.path.join(cli_template_path, cli_template_file)
+    cli_compose_output_path = os.path.join(CFG_DIR, "cli-compose.yaml")
+    if os.path.exists(cli_template_full_path):
+        env = Environment(loader=FileSystemLoader(cli_template_path))
+        template = env.get_template(cli_template_file)
+        output = template.render(cli_component=cli_component)
+        with open(cli_compose_output_path, "w") as f:
+            f.write(output)
+        print(f"[orchestrator] cli-compose.yaml written to {cli_compose_output_path} (cli_component={cli_component})")
+    else:
+        print(f"[orchestrator] cli-compose.j2 template not found, skipping cli-compose.yaml generation.")
 
 if __name__ == "__main__":
     main()

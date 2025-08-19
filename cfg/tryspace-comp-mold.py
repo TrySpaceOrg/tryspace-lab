@@ -97,7 +97,7 @@ def replace_content_in_files(target_dir, name_variants):
     ]
     
     # Find all text files (exclude binary files)
-    text_extensions = {'.c', '.h', '.cmake', '.txt', '.md', '.yml', '.yaml', '.xtce', '.scr', '.j2'}
+    text_extensions = {'.c', '.h', '.cmake', '.cli', '.txt', '.md', '.yml', '.yaml', '.xtce', '.scr', '.j2'}
     
     for file_path in target_dir.rglob('*'):
         if file_path.is_file() and (file_path.suffix.lower() in text_extensions or file_path.name in ['CMakeLists.txt', 'Makefile']):
