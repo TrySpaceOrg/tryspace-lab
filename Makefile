@@ -1,5 +1,5 @@
 # Makefile for TrySpace Lab development
-.PHONY: build clean clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug fsw gsw help mold sim start stop uninstall
+.PHONY: build clean clean-cache clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug fsw gsw help mold sim start stop uninstall
 
 # Build image name
 export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:0.0.0
@@ -28,6 +28,9 @@ clean:
 	else \
 		echo "Docker image $(BUILD_IMAGE) does not exist. Skipping clean subcommands."; \
 	fi
+
+clean-cache:
+	docker builder prune -f
 
 clean-cli:
 	@for dir in $(CURDIR)/comp/*/cli ; do \
@@ -89,6 +92,7 @@ help:
 	@echo "  cfg           - Run orchestrator to configure environment"
 	@echo "  cli           - Build CLI and start CLI services"
 	@echo "  clean         - Remove build artifacts and stop services"
+	@echo "  clean-cache   - Clean Docker build cache (frees significant disk space)"
 	@echo "  clean-cli     - Clean CLI components"
 	@echo "  clean-fsw     - Clean FSW components"
 	@echo "  clean-gsw     - Clean GSW components"
@@ -119,8 +123,11 @@ stop:
 	docker compose -f ./cfg/cli-compose.yaml down --remove-orphans
 	docker compose -f ./cfg/lab-compose.yaml down --remove-orphans
 	docker images -f "dangling=true" -q | xargs -r docker rmi
+	@echo ""
+	@echo "To cleanup Docker build cache, run: make clean-cache"
+	@echo "To cleanup everything Docker, run: docker system prune -a"
 
-uninstall: clean
+uninstall: clean clean-cache
 	rm -f $(CFG_DIR)/active.yaml $(CFG_DIR)/build.yaml 
 	docker ps -a --filter "name=tryspace-" -q | xargs -r docker rm -f
 	docker images "tryspace-*" -q | xargs -r docker rmi
