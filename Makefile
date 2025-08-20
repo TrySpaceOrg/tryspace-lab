@@ -1,5 +1,5 @@
 # Makefile for TrySpace Lab development
-.PHONY: build clean clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug fsw gsw help sim start stop uninstall
+.PHONY: build clean clean-cache clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug fsw gsw help mold sim start stop uninstall
 
 # Build image name
 export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:0.0.0
@@ -18,17 +18,19 @@ cfg: container
 
 clean:
 	$(MAKE) stop
-	@if docker image inspect $(BUILD_IMAGE):latest >/dev/null 2>&1; then \
+	@if docker image inspect $(BUILD_IMAGE) >/dev/null 2>&1; then \
 		$(MAKE) clean-cli; \
 		$(MAKE) clean-fsw; \
 		$(MAKE) clean-gsw; \
 		$(MAKE) clean-sim; \
-		docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm \
-		docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm \
+		docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm; \
+		docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm; \
 	else \
 		echo "Docker image $(BUILD_IMAGE) does not exist. Skipping clean subcommands."; \
 	fi
-	rm -f $(CFG_DIR)/active.yaml $(CFG_DIR)/build.yaml 
+
+clean-cache:
+	docker builder prune -f
 
 clean-cli:
 	@for dir in $(CURDIR)/comp/*/cli ; do \
@@ -44,7 +46,7 @@ clean-gsw:
 	cd gsw && $(MAKE) clean
 
 clean-sim:
-	@for dir in $(CURDIR)/comp/* ; do \
+	@for dir in $(CURDIR)/comp/*/sim ; do \
 		if [ -d "$$dir" ] && [ -f "$$dir/Makefile" ]; then \
 			$(MAKE) -C "$$dir" clean; \
 		fi; \
@@ -53,13 +55,13 @@ clean-sim:
 
 cli: cfg
 	$(MAKE) container
+	$(MAKE) sim
 	@for dir in $(CURDIR)/comp/*/cli ; do \
         if [ -f "$$dir/Makefile" ]; then \
             $(MAKE) -C "$$dir" runtime; \
         fi; \
     done
-	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
-	docker compose -f ./cfg/cli-compose.yml up
+	docker compose -f ./cfg/cli-compose.yaml up
 
 container: cfg/Dockerfile.base
 	@command -v docker >/dev/null 2>&1 || { echo "Error: docker is not installed or not in PATH."; exit 1; }
@@ -74,6 +76,15 @@ fsw: cfg
 gsw: cfg
 	cd $(CURDIR)/gsw && $(MAKE) runtime
 
+mold:
+	@if [ "$(COMP)" = "" ]; then \
+		echo "Error: COMP parameter is required"; \
+		echo "Usage: make mold COMP=<name>"; \
+		echo "Example: make mold COMP=my_sensor"; \
+		exit 1; \
+	fi
+	python3 $(CFG_DIR)/tryspace-comp-mold.py "$(COMP)"
+
 help:
 	@echo "Usage: make <target>"
 	@echo "Targets:"
@@ -81,6 +92,7 @@ help:
 	@echo "  cfg           - Run orchestrator to configure environment"
 	@echo "  cli           - Build CLI and start CLI services"
 	@echo "  clean         - Remove build artifacts and stop services"
+	@echo "  clean-cache   - Clean Docker build cache (frees significant disk space)"
 	@echo "  clean-cli     - Clean CLI components"
 	@echo "  clean-fsw     - Clean FSW components"
 	@echo "  clean-gsw     - Clean GSW components"
@@ -89,6 +101,7 @@ help:
 	@echo "  debug         - Start a debug shell in the container"
 	@echo "  fsw           - Build FSW"
 	@echo "  gsw           - Build GSW"
+	@echo "  mold          - Create new component from demo template (Usage: make mold COMP=<name>)"
 	@echo "  sim           - Build Simulith and component simulators"
 	@echo "  start         - Start lab services"
 	@echo "  stop          - Stop lab and CLI services, clean up Docker images"
@@ -98,20 +111,24 @@ sim: cfg
 	@for dir in $(CURDIR)/comp/*/sim ; do \
 		if [ -d "$$dir" ] && [ -f "$$dir/Makefile" ]; then \
 			echo "Building component in $$dir"; \
-			$(MAKE) -C "$$dir" runtime; \
+			$(MAKE) -C "$$dir" build; \
 		fi; \
 	done
 	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
 
 start: cfg
-	docker compose -f ./cfg/lab-compose.yml up
+	docker compose -f ./cfg/lab-compose.yaml up
 
 stop:
-	docker compose -f ./cfg/cli-compose.yml down
-	docker compose -f ./cfg/lab-compose.yml down
+	docker compose -f ./cfg/cli-compose.yaml down --remove-orphans
+	docker compose -f ./cfg/lab-compose.yaml down --remove-orphans
 	docker images -f "dangling=true" -q | xargs -r docker rmi
+	@echo ""
+	@echo "To cleanup Docker build cache, run: make clean-cache"
+	@echo "To cleanup everything Docker, run: docker system prune -a"
 
-uninstall: clean
+uninstall: clean clean-cache
+	rm -f $(CFG_DIR)/active.yaml $(CFG_DIR)/build.yaml 
 	docker ps -a --filter "name=tryspace-" -q | xargs -r docker rm -f
 	docker images "tryspace-*" -q | xargs -r docker rmi
 	docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm

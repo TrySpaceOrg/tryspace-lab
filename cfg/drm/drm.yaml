@@ -1,6 +1,7 @@
 mission_name: "drm"
 components:
   - name: "demo"
+  - name: "eps"
 scenarios:
   - name: "nominal"
     config_file: "drm/scenarios/drm-nominal.yaml"

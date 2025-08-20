@@ -1,5 +1,5 @@
 # Start
-#   docker compose -f lab-compose.yml up
+#   docker compose -f lab-compose.yaml up
 # View specific containers
 #   docker attach tryspace-fsw
 #   docker attach tryspace-director
