@@ -22,3 +22,7 @@
 	path = comp/eps
 	url = https://github.com/TrySpaceOrg/tryspace-comp-eps.git
 	branch = main
+[submodule "comp/radio"]
+	path = comp/radio
+	url = https://github.com/TrySpaceOrg/tryspace-comp-radio.git
+	branch = main
