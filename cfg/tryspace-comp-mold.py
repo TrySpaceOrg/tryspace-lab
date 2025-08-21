@@ -199,7 +199,7 @@ def main():
         print(f"       ./fsw/tryspace_defs/tables/to_lab_sub.c")
         print(f"       ./fsw/tryspace_defs/targets.cmake")
         print(f"  4. Add the component to the GSW definitions:")
-        print(f"       ./gsw/src/main/yamcs/etc/etc/yamcs.nos3.yaml")
+        print(f"       ./gsw/src/main/yamcs/etc/yamcs.tryspace.yaml")
         print(f"  5. Build like you would normally and confirm new component runs")
         print(f"  6. Customize the component for your specific needs")
         print()
