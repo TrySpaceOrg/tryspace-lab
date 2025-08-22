@@ -3,3 +3,4 @@ build
 cfg/active.yaml
 cfg/build.yaml
 cfg/cli-compose.yaml
+cfg/lab-compose.yaml

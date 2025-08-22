@@ -48,6 +48,7 @@ def main():
     mission = active.get("mission")
     scenario = active.get("scenario", "nominal")
     cli_component = active.get("cli", "demo")
+    log_mode = active.get("log", "stdout")
 
     # Find mission config file
     mission_entry = next((m for m in global_cfg["build"]["missions"] if m["name"] == mission), None)
@@ -126,6 +127,7 @@ def main():
         else:
             print(f"[orchestrator] No config or template found for component '{comp_name}', skipping.")
 
+
     # Render cli-compose.yaml from Jinja2 template using cli_component
     cli_template_path = os.path.abspath(os.path.join(CFG_DIR))
     cli_template_file = "cli-compose.j2"
@@ -140,6 +142,21 @@ def main():
         print(f"[orchestrator] cli-compose.yaml written to {cli_compose_output_path} (cli_component={cli_component})")
     else:
         print(f"[orchestrator] cli-compose.j2 template not found, skipping cli-compose.yaml generation.")
+
+    # Render lab-compose.yaml from Jinja2 template using log_mode
+    lab_template_path = os.path.abspath(os.path.join(CFG_DIR))
+    lab_template_file = "lab-compose.j2"
+    lab_template_full_path = os.path.join(lab_template_path, lab_template_file)
+    lab_compose_output_path = os.path.join(CFG_DIR, "lab-compose.yaml")
+    if os.path.exists(lab_template_full_path):
+        env = Environment(loader=FileSystemLoader(lab_template_path))
+        template = env.get_template(lab_template_file)
+        output = template.render(log_mode=log_mode)
+        with open(lab_compose_output_path, "w") as f:
+            f.write(output)
+        print(f"[orchestrator] lab-compose.yaml written to {lab_compose_output_path} (log_mode={log_mode})")
+    else:
+        print(f"[orchestrator] lab-compose.j2 template not found, skipping lab-compose.yaml generation.")
 
 if __name__ == "__main__":
     main()
