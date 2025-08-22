@@ -50,6 +50,7 @@ services:
     stdin_open: true
     tty: true
     depends_on:
+      - tryspace-gsw
       - tryspace-server
     command: ["/app/simulith_director_standalone"]
     cpus: "1.0"
