@@ -40,7 +40,7 @@ def main():
         mission_cfg = load_yaml(mission_cfg_path)
         scenarios = mission_cfg.get("scenarios", [])
         scenario = scenarios[0]["name"] if scenarios else "nominal"
-        active = {"mission": mission, "scenario": scenario, "cli": "demo"}
+        active = {"mission": mission, "scenario": scenario, "cli": "demo", "log_mode": "none"}
         with open(ACTIVE_PATH, "w") as f:
             yaml.safe_dump(active, f)
         print(f"[orchestrator] Created {ACTIVE_PATH} with defaults: mission={mission}, scenario={scenario}")
