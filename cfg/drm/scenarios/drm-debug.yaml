@@ -1,0 +1,3 @@
+scenario_name: "debug"
+overrides:
+  debug: true

@@ -1,9 +1,5 @@
-# Start
-#   docker compose -f lab-compose.yaml up
-# View specific containers
-#   docker attach tryspace-fsw
-#   docker attach tryspace-director
-#   docker attach tryspace-server
+# lab-compose.j2
+# Jinja2 template for lab-compose.yaml with SIMULITH_LOG_MODE
 services:
   tryspace-gsw:
     image: tryspace-gsw:latest
@@ -12,7 +8,7 @@ services:
       - tryspace-net
     attach: false
     ports:
-      - "8090:8090"           # YAMCS Web Interface
+      - "8090:8090"
     volumes:
       - gsw-data:/app/yamcs-data
     healthcheck:
@@ -33,6 +29,7 @@ services:
     tty: true
     environment:
       - NUM_CLIENTS=${NUM_CLIENTS:-2}
+      - SIMULITH_LOG_MODE=stdout
     command: ["/bin/sh", "-c", "/app/simulith_server_standalone $${NUM_CLIENTS}"]
     cpus: "4.0"
     mem_limit: 2g
@@ -50,7 +47,10 @@ services:
     stdin_open: true
     tty: true
     depends_on:
+      - tryspace-gsw
       - tryspace-server
+    environment:
+      - SIMULITH_LOG_MODE={{ log_mode | default('stdout') }}
     command: ["/app/simulith_director_standalone"]
     cpus: "1.0"
     mem_limit: 512m
@@ -69,6 +69,8 @@ services:
     depends_on:
       - tryspace-server
       - tryspace-director
+    environment:
+      - SIMULITH_LOG_MODE={{ log_mode | default('stdout') }}
     sysctls:
       - fs.mqueue.msg_max=10000
     ulimits:
