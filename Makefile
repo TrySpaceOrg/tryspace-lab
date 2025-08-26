@@ -2,7 +2,7 @@
 .PHONY: build clean clean-cache clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug fsw gsw help mold sim start stop uninstall
 
 # Build image name
-export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:0.0.0
+export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:0.0.1
 
 # Common paths
 CFG_DIR := $(CURDIR)/cfg
