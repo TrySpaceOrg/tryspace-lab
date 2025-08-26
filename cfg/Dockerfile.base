@@ -20,6 +20,8 @@ RUN apt-get update && \
     git \
     gpg \
     lcov \
+    libcurl4-openssl-dev \
+    libgcrypt20-dev \
     libsocketcan-dev \
     libzmq3-dev \
     pkg-config \

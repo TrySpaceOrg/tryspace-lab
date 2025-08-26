@@ -74,6 +74,7 @@ fsw: cfg
 	cd $(CURDIR)/fsw && $(MAKE) runtime
 
 gsw: cfg
+	cd $(CURDIR)/comp/cryptolib && $(MAKE) tryspace
 	cd $(CURDIR)/gsw && $(MAKE) runtime
 
 mold:

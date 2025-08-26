@@ -48,7 +48,7 @@ def main():
     mission = active.get("mission")
     scenario = active.get("scenario", "nominal")
     cli_component = active.get("cli", "demo")
-    log_mode = active.get("log", "stdout")
+    log_mode = active.get("log", "none")
 
     # Find mission config file
     mission_entry = next((m for m in global_cfg["build"]["missions"] if m["name"] == mission), None)

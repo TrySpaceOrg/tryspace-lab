@@ -51,7 +51,23 @@ services:
       - tryspace-server
     environment:
       - SIMULITH_LOG_MODE={{ log_mode | default('stdout') }}
-    command: ["/app/simulith_director_standalone"]
+    cpus: "1.0"
+    mem_limit: 512m
+    volumes:
+      - simulith_ipc:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=100m
+
+  tryspace-cryptolib:
+    image: tryspace-cryptolib:latest
+    container_name: tryspace-cryptolib
+    networks:
+      - tryspace-net
+    stdin_open: true
+    tty: true
+    depends_on:
+      - tryspace-director
+      - tryspace-gsw
     cpus: "1.0"
     mem_limit: 512m
     volumes:
@@ -67,8 +83,9 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-      - tryspace-server
+      - tryspace-cryptolib
       - tryspace-director
+      - tryspace-server
     environment:
       - SIMULITH_LOG_MODE={{ log_mode | default('stdout') }}
     sysctls:
@@ -84,7 +101,7 @@ services:
     tmpfs:
       - /dev/shm:noexec,nosuid,size=1g
     privileged: false
-    
+
 networks:
   tryspace-net:
     driver: bridge
