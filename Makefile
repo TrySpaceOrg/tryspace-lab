@@ -31,6 +31,7 @@ clean:
 
 clean-cache:
 	docker builder prune -f
+	docker volume rm -f gsw-data simulith_ipc || true
 
 clean-cli:
 	@for dir in $(CURDIR)/comp/*/cli ; do \
