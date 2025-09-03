@@ -1,5 +1,6 @@
 mission_name: "drm"
 components:
+  - name: "adcs"
   - name: "demo"
   - name: "eps"
   - name: "radio"
