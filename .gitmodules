@@ -30,3 +30,7 @@
 	path = comp/cryptolib
 	url = https://github.com/TrySpaceOrg/tryspace-ext-cryptolib.git
 	branch = dev
+[submodule "comp/adcs"]
+	path = comp/adcs
+	url = https://github.com/TrySpaceOrg/tryspace-comp-adcs.git
+	branch = main

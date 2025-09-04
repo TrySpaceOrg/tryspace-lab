@@ -17,6 +17,7 @@ RUN apt-get update && \
     cmake \
     curl \
     gcovr \
+    gdb \
     git \
     gpg \
     lcov \
