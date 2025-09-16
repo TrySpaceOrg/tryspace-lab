@@ -33,7 +33,6 @@ else()
         "-Wswitch-default"              # Warn if switch statement does not have a default case
         "-Wswitch-enum"                 # Warn if switch on enum does not handle all values
         "-Wfloat-equal"                 # Warn about comparing floating point values for equality
-        "-Wundef"                       # Warn if undefined macros are used
         "-Wbad-function-cast"           # Warn about bad function casts
 
         # --- Suppressions and compatibility ---
