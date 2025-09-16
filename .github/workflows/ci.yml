@@ -71,3 +71,20 @@ jobs:
         with:
           verbose: true
           recurse_submodules: true
+
+  build-cli:
+    runs-on: ubuntu-latest
+    container:
+        image: tryspaceorg/tryspace-lab:0.0.1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+      - name: Build CLI
+        run: |
+          cd cfg
+          python3 tryspace-orchestrator.py
+          cd ..
+          make cli
