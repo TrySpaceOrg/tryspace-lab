@@ -1,5 +1,5 @@
 # Makefile for TrySpace Lab development
-.PHONY: build clean clean-cache clean-cli clean-fsw clean-gsw clean-sim cfg cli container debug fsw gsw help mold sim start stop uninstall
+.PHONY: build clean clean-cache clean-cli clean-fsw clean-gsw clean-sim cfg cli cli-start container debug fsw gsw help mold sim start stop uninstall
 
 # Build image name
 export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:0.0.1
@@ -56,12 +56,13 @@ clean-sim:
 
 cli: cfg
 	$(MAKE) container
-	$(MAKE) sim
 	@for dir in $(CURDIR)/comp/*/cli ; do \
         if [ -f "$$dir/Makefile" ]; then \
             $(MAKE) -C "$$dir" runtime; \
         fi; \
     done
+
+cli-start: cfg
 	docker compose -f ./cfg/cli-compose.yaml up
 
 container: cfg/Dockerfile.base
@@ -92,8 +93,9 @@ help:
 	@echo "Targets:"
 	@echo "  build         - Build the full runtime environment"
 	@echo "  cfg           - Run orchestrator to configure environment"
-	@echo "  cli           - Build CLI and start CLI services"
-	@echo "  clean         - Remove build artifacts and stop services"
+	@echo "  cli           - Build CLI components"
+	@echo "  cli-start     - Start CLI compose"
+	@echo "  clean         - Remove build artifacts and stop compose"
 	@echo "  clean-cache   - Clean Docker build cache (frees significant disk space)"
 	@echo "  clean-cli     - Clean CLI components"
 	@echo "  clean-fsw     - Clean FSW components"
@@ -105,8 +107,8 @@ help:
 	@echo "  gsw           - Build GSW"
 	@echo "  mold          - Create new component from demo template (Usage: make mold COMP=<name>)"
 	@echo "  sim           - Build Simulith and component simulators"
-	@echo "  start         - Start lab services"
-	@echo "  stop          - Stop lab and CLI services, clean up Docker images"
+	@echo "  start         - Start lab compose"
+	@echo "  stop          - Stop lab and CLI compose, clean up Docker images"
 	@echo "  uninstall     - Remove containers, images, volumes, and networks"
 
 sim: cfg

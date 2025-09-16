@@ -71,3 +71,25 @@ jobs:
         with:
           verbose: true
           recurse_submodules: true
+
+  build-cli:
+    runs-on: ubuntu-latest
+    container:
+        image: tryspaceorg/tryspace-lab:0.0.1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+      - name: Build CLI
+        run: |
+          cd cfg
+          python3 tryspace-orchestrator.py
+          cd ..
+          for dir in $(pwd)/comp/*/cli ; do
+            if [ -f "$dir/Makefile" ]; then
+              echo "Building CLI component in $dir"
+              make -C "$dir" build-cli || { echo "Failed building $dir"; exit 1; }
+            fi
+          done
