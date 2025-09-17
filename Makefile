@@ -112,6 +112,7 @@ help:
 	@echo "  uninstall     - Remove containers, images, volumes, and networks"
 
 sim: cfg
+	cd $(CURDIR)/simulith && $(MAKE) build
 	@for dir in $(CURDIR)/comp/*/sim ; do \
 		if [ -d "$$dir" ] && [ -f "$$dir/Makefile" ]; then \
 			echo "Building component in $$dir"; \
