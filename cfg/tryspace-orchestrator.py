@@ -40,12 +40,18 @@ def main():
         mission_cfg = load_yaml(mission_cfg_path)
         scenarios = mission_cfg.get("scenarios", [])
         scenario = scenarios[0]["name"] if scenarios else "nominal"
-        active = {"mission": mission, "scenario": scenario, "cli": "demo", "log_mode": "none"}
+        
+        # Default spacecraft selection
+        spacecraft_list = mission_cfg.get("spacecraft", [])
+        spacecraft = spacecraft_list[0]["name"] if spacecraft_list else None
+        
+        active = {"mission": mission, "spacecraft": spacecraft, "scenario": scenario, "cli": "demo", "log_mode": "none"}
         with open(ACTIVE_PATH, "w") as f:
             yaml.safe_dump(active, f)
-        print(f"[orchestrator] Created {ACTIVE_PATH} with defaults: mission={mission}, scenario={scenario}")
+        print(f"[orchestrator] Created {ACTIVE_PATH} with defaults: mission={mission}, spacecraft={spacecraft}, scenario={scenario}")
 
     mission = active.get("mission")
+    spacecraft = active.get("spacecraft")  # NEW: spacecraft selection
     scenario = active.get("scenario", "nominal")
     cli_component = active.get("cli", "demo")
     log_mode = active.get("log", "none")
@@ -64,12 +70,26 @@ def main():
     scenario_cfg_path = os.path.join(CFG_DIR, os.path.relpath(scenario_entry["config_file"], CFG_DIR))
     scenario_cfg = load_yaml(scenario_cfg_path)
 
+    # Load spacecraft config if specified
+    spacecraft_cfg = {}
+    if spacecraft:
+        spacecraft_list = mission_cfg.get("spacecraft", [])
+        spacecraft_entry = next((sc for sc in spacecraft_list if sc["name"] == spacecraft), None)
+        if not spacecraft_entry:
+            fail(f"Spacecraft '{spacecraft}' not found in mission config.")
+        spacecraft_cfg_path = os.path.join(CFG_DIR, os.path.relpath(spacecraft_entry["config_file"], CFG_DIR))
+        spacecraft_cfg = load_yaml(spacecraft_cfg_path)
+        if not spacecraft_cfg:
+            spacecraft_cfg = {}
+
     # Merge configs (minimal: just collect for now)
     merged = {
         "mission": mission,
+        "spacecraft": spacecraft,
         "scenario": scenario,
         "global": global_cfg,
         "mission_cfg": mission_cfg,
+        "spacecraft_cfg": spacecraft_cfg,
         "scenario_cfg": scenario_cfg,
     }
 
@@ -78,14 +98,20 @@ def main():
         yaml.safe_dump(merged, f)
     print(f"[orchestrator] Merged config written to {BUILD_PATH}")
 
-    # Render config files for all components defined in the mission config
-    components = merged["mission_cfg"].get("components", [])
+    # Render config files for components
+    # Determine which components to process based on spacecraft or fallback to mission components
+    if spacecraft and merged["spacecraft_cfg"]:
+        components = merged["spacecraft_cfg"].get("components", [])
+    else:
+        # Fallback to mission-level components for backward compatibility
+        components = merged["mission_cfg"].get("components", [])
+    
     for comp in components:
         comp_name = comp.get("name")
         if not comp_name:
             continue
 
-        # Full cascading merge: fallback -> global -> mission -> scenario -> scenario overrides
+        # Full cascading merge: fallback -> global -> mission -> spacecraft -> scenario -> scenario overrides
         # 1. Fallback config
         fallback_path = os.path.abspath(os.path.join(CFG_DIR, f'../comp/{comp_name}/support/device_config.yaml'))
         fallback_data = load_yaml(fallback_path)
@@ -99,11 +125,16 @@ def main():
         mission_cfg_comp = merged["mission_cfg"].get(comp_name, {})
         comp_cfg.update(mission_cfg_comp)
 
-        # 4. Scenario config
+        # 4. Spacecraft config (NEW LAYER)
+        if merged["spacecraft_cfg"]:
+            spacecraft_cfg_comp = merged["spacecraft_cfg"].get(comp_name, {})
+            comp_cfg.update(spacecraft_cfg_comp)
+
+        # 5. Scenario config
         scenario_cfg_comp = merged["scenario_cfg"].get(comp_name, {})
         comp_cfg.update(scenario_cfg_comp)
 
-        # 5. Scenario-level 'overrides' dict
+        # 6. Scenario-level 'overrides' dict
         overrides = merged["scenario_cfg"].get("overrides", {})
         if overrides is None:
             overrides = {}

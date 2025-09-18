@@ -1,0 +1,32 @@
+spacecraft_name: "sat-1"
+spacecraft_id: 1
+components:
+  - name: "adcs"
+  - name: "demo"
+  - name: "eps"
+  - name: "radio"
+
+# Specific configuration
+adcs:
+  string: "/dev/usart_2"
+  handle: 2
+  baudrate_hz: 115200
+  ms_timeout: 250
+
+demo:
+  string: "/dev/usart_5"
+  handle: 5
+  baudrate_hz: 115200
+  ms_timeout: 250
+
+eps:
+  i2c_bus_id: 0
+  i2c_device_addr: 0x1E
+  i2c_speed: 400000
+  ms_timeout: 250
+
+radio:
+  spi_bus: 1
+  spi_cs: 0
+  gpio_power_pin: 10
+  gpio_interrupt_pin: 11
