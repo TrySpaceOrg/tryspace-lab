@@ -174,7 +174,7 @@ def main():
     else:
         print(f"[orchestrator] cli-compose.j2 template not found, skipping cli-compose.yaml generation.")
 
-    # Render lab-compose.yaml from Jinja2 template using log_mode
+    # Render lab-compose.yaml from Jinja2 template using log_mode and spacecraft
     lab_template_path = os.path.abspath(os.path.join(CFG_DIR))
     lab_template_file = "lab-compose.j2"
     lab_template_full_path = os.path.join(lab_template_path, lab_template_file)
@@ -182,10 +182,10 @@ def main():
     if os.path.exists(lab_template_full_path):
         env = Environment(loader=FileSystemLoader(lab_template_path))
         template = env.get_template(lab_template_file)
-        output = template.render(log_mode=log_mode)
+        output = template.render(log_mode=log_mode, spacecraft=spacecraft)
         with open(lab_compose_output_path, "w") as f:
             f.write(output)
-        print(f"[orchestrator] lab-compose.yaml written to {lab_compose_output_path} (log_mode={log_mode})")
+        print(f"[orchestrator] lab-compose.yaml written to {lab_compose_output_path} (log_mode={log_mode}, spacecraft={spacecraft})")
     else:
         print(f"[orchestrator] lab-compose.j2 template not found, skipping lab-compose.yaml generation.")
 
