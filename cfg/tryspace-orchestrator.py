@@ -158,7 +158,6 @@ def main():
         else:
             print(f"[orchestrator] No config or template found for component '{comp_name}', skipping.")
 
-
     # Render cli-compose.yaml from Jinja2 template using cli_component
     cli_template_path = os.path.abspath(os.path.join(CFG_DIR))
     cli_template_file = "cli-compose.j2"
@@ -188,6 +187,68 @@ def main():
         print(f"[orchestrator] lab-compose.yaml written to {lab_compose_output_path} (log_mode={log_mode}, spacecraft={spacecraft})")
     else:
         print(f"[orchestrator] lab-compose.j2 template not found, skipping lab-compose.yaml generation.")
+
+    # Copy and manipulate spacecraft-specific FSW config files
+    if spacecraft:
+        build_cfg_dir = os.path.abspath(os.path.join(CFG_DIR, f'../build/{spacecraft}/cfg'))
+        baseline_cfg_dir = os.path.abspath(os.path.join(CFG_DIR, 'tryspace_defs'))
+        os.makedirs(build_cfg_dir, exist_ok=True)
+
+        # Copy all baseline config files to build/<spacecraft>/cfg
+        import shutil
+        for item in os.listdir(baseline_cfg_dir):
+            s = os.path.join(baseline_cfg_dir, item)
+            d = os.path.join(build_cfg_dir, item)
+            if os.path.isdir(s):
+                if os.path.exists(d):
+                    shutil.rmtree(d)
+                shutil.copytree(s, d)
+            else:
+                shutil.copy2(s, d)
+        print(f"[orchestrator] Baseline FSW config files copied to {build_cfg_dir}")
+
+        # Manipulate cpu1_cfe_es_startup.scr to remove lines for components not enabled for the spacecraft
+        startup_scr_path = os.path.join(build_cfg_dir, "cpu1_cfe_es_startup.scr")
+        enabled_components = set()
+        # Get enabled components from spacecraft_cfg (preferred) or mission_cfg
+        if merged["spacecraft_cfg"] and "components" in merged["spacecraft_cfg"]:
+            enabled_components = set(comp["name"] for comp in merged["spacecraft_cfg"]["components"] if "name" in comp)
+        elif "components" in merged["mission_cfg"]:
+            enabled_components = set(comp["name"] for comp in merged["mission_cfg"]["components"] if "name" in comp)
+
+        if os.path.exists(startup_scr_path):
+            with open(startup_scr_path, "r") as f:
+                lines = f.readlines()
+            new_lines = []
+            # Only modify lines for spacecraft-specific components (adcs, demo, eps, radio)
+            spacecraft_apps = {"adcs", "demo", "eps", "radio"}
+            for line in lines:
+                # Only process non-comment, non-blank lines before '!'
+                if line.strip().startswith("!") or not line.strip():
+                    new_lines.append(line)
+                    continue
+                # Check for CFE_APP lines for spacecraft-specific components
+                if line.startswith("CFE_APP"):
+                    parts = [p.strip() for p in line.split(",")]
+                    if len(parts) > 1:
+                        comp_name = parts[1]
+                        if comp_name in spacecraft_apps:
+                            # Only keep if enabled for this spacecraft
+                            if comp_name in enabled_components:
+                                new_lines.append(line)
+                            else:
+                                print(f"[orchestrator] Removing {comp_name} from startup script (not enabled for {spacecraft})")
+                        else:
+                            new_lines.append(line)
+                    else:
+                        new_lines.append(line)
+                else:
+                    new_lines.append(line)
+            with open(startup_scr_path, "w") as f:
+                f.writelines(new_lines)
+            print(f"[orchestrator] Updated {startup_scr_path} to only include enabled spacecraft components: {sorted(enabled_components)}")
+        else:
+            print(f"[orchestrator] {startup_scr_path} not found, skipping manipulation.")
 
 if __name__ == "__main__":
     main()
