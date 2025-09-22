@@ -190,11 +190,11 @@ def main():
 
     # Copy and manipulate spacecraft-specific FSW config files
     if spacecraft:
-        build_cfg_dir = os.path.abspath(os.path.join(CFG_DIR, f'../build/{spacecraft}/cfg'))
+        build_cfg_dir = os.path.abspath(os.path.join(CFG_DIR, f'../build/{mission}/{spacecraft}/cfg'))
         baseline_cfg_dir = os.path.abspath(os.path.join(CFG_DIR, 'tryspace_defs'))
         os.makedirs(build_cfg_dir, exist_ok=True)
 
-        # Copy all baseline config files to build/<spacecraft>/cfg
+        # Copy all baseline config files to build/<mission>/<spacecraft>/cfg
         import shutil
         for item in os.listdir(baseline_cfg_dir):
             s = os.path.join(baseline_cfg_dir, item)
