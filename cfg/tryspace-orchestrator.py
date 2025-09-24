@@ -181,7 +181,7 @@ def main():
     if os.path.exists(lab_template_full_path):
         env = Environment(loader=FileSystemLoader(lab_template_path))
         template = env.get_template(lab_template_file)
-        output = template.render(log_mode=log_mode, spacecraft=spacecraft)
+        output = template.render(log_mode=log_mode, spacecraft=spacecraft, mission=mission)
         with open(lab_compose_output_path, "w") as f:
             f.write(output)
         print(f"[orchestrator] lab-compose.yaml written to {lab_compose_output_path} (log_mode={log_mode}, spacecraft={spacecraft})")

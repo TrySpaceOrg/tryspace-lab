@@ -89,7 +89,7 @@ fsw: cfg
 	cd $(CURDIR)/fsw && $(MAKE) runtime BUILDDIR=$(BUILDDIR_FSW) SPACECRAFT=$(SPACECRAFT) MISSION=$(MISSION)
 
 gsw: cfg
-	cd $(CURDIR)/comp/cryptolib && $(MAKE) tryspace SPACECRAFT=$(SPACECRAFT)
+	cd $(CURDIR)/comp/cryptolib && $(MAKE) tryspace SPACECRAFT=$(SPACECRAFT) MISSION=$(MISSION)
 	cd $(CURDIR)/gsw && $(MAKE) runtime BUILDDIR=$(BUILDDIR_GSW) SPACECRAFT=$(SPACECRAFT) MISSION=$(MISSION)
 
 mold:

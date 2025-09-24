@@ -2,15 +2,15 @@
 # Jinja2 template for lab-compose.yaml with spacecraft-specific images
 services:
   tryspace-gsw:
-    image: tryspace-gsw:{{ spacecraft | default('latest') }}
-    container_name: tryspace-gsw-{{ spacecraft | default('default') }}
+    image: tryspace-gsw-{{ mission | default('default') }}:{{ mission | default('default') }}-{{ spacecraft | default('latest') }}
+    container_name: tryspace-gsw-{{ mission | default('default') }}
     networks:
       - tryspace-net-{{ spacecraft | default('default') }}
     attach: false
     ports:
       - "8090:8090"
     volumes:
-      - gsw-data_{{ spacecraft | default('default') }}:/app/yamcs-data
+      - gsw-data_{{ mission | default('default') }}:/app/yamcs-data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8090"]
       interval: 30s
@@ -21,7 +21,7 @@ services:
     mem_limit: 1g
 
   tryspace-server:
-    image: tryspace-server:{{ spacecraft | default('latest') }}
+    image: tryspace-server-{{ mission | default('default') }}:{{ spacecraft | default('latest') }}
     container_name: tryspace-server-{{ spacecraft | default('default') }}
     networks:
       - tryspace-net-{{ spacecraft | default('default') }}
@@ -40,7 +40,7 @@ services:
     privileged: false
 
   tryspace-director:
-    image: tryspace-director:{{ spacecraft | default('latest') }}
+    image: tryspace-director-{{ mission | default('default') }}:{{ spacecraft | default('latest') }}
     container_name: tryspace-director-{{ spacecraft | default('default') }}
     networks:
       - tryspace-net-{{ spacecraft | default('default') }}
@@ -59,7 +59,7 @@ services:
       - /dev/shm:noexec,nosuid,size=100m
 
   tryspace-cryptolib:
-    image: tryspace-cryptolib:{{ spacecraft | default('latest') }}
+    image: tryspace-cryptolib-{{ mission | default('default') }}:{{ spacecraft | default('latest') }}
     container_name: tryspace-cryptolib-{{ spacecraft | default('default') }}
     networks:
       - tryspace-net-{{ spacecraft | default('default') }}
@@ -76,7 +76,7 @@ services:
       - /dev/shm:noexec,nosuid,size=100m
 
   tryspace-fsw:
-    image: tryspace-fsw:{{ spacecraft | default('latest') }}
+    image: tryspace-fsw-{{ mission | default('default') }}:{{ spacecraft | default('latest') }}
     container_name: tryspace-fsw-{{ spacecraft | default('default') }}
     networks:
       - tryspace-net-{{ spacecraft | default('default') }}
@@ -109,5 +109,5 @@ networks:
 volumes:
   simulith_ipc_{{ spacecraft | default('default') }}:
     driver: local
-  gsw-data_{{ spacecraft | default('default') }}:
+  gsw-data_{{ mission | default('default') }}:
     driver: local
