@@ -7,6 +7,20 @@ export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:0.0.1
 # Common paths
 CFG_DIR := $(CURDIR)/cfg
 
+# Read spacecraft from active.yaml for unified build directory structure
+SPACECRAFT := $(shell grep '^spacecraft:' $(CFG_DIR)/active.yaml 2>/dev/null | sed 's/spacecraft: *//' | tr -d ' ')
+MISSION := $(shell grep '^mission:' $(CFG_DIR)/active.yaml 2>/dev/null | sed 's/mission: *//' | tr -d ' ')
+ifneq ($(SPACECRAFT),)
+ifneq ($(MISSION),)
+export BUILDDIR_MISSION := $(CURDIR)/build/$(MISSION)/
+export BUILDDIR_BASE := $(BUILDDIR_MISSION)/$(SPACECRAFT)
+export BUILDDIR_SIM := $(BUILDDIR_BASE)/sim
+export BUILDDIR_FSW := $(BUILDDIR_BASE)/fsw
+export BUILDDIR_GSW := $(BUILDDIR_BASE)/gsw
+export BUILDDIR_COMP := $(BUILDDIR_BASE)/comp
+endif
+endif
+
 # Commands
 build: cfg
 	$(MAKE) sim
@@ -19,10 +33,8 @@ cfg: container
 clean:
 	$(MAKE) stop
 	@if docker image inspect $(BUILD_IMAGE) >/dev/null 2>&1; then \
-		$(MAKE) clean-cli; \
-		$(MAKE) clean-fsw; \
+		rm -rf $(BUILDDIR_MISSION); \
 		$(MAKE) clean-gsw; \
-		$(MAKE) clean-sim; \
 		docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm; \
 		docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm; \
 	else \
@@ -58,7 +70,8 @@ cli: cfg
 	$(MAKE) container
 	@for dir in $(CURDIR)/comp/*/cli ; do \
         if [ -f "$$dir/Makefile" ]; then \
-            $(MAKE) -C "$$dir" runtime; \
+            comp_name=$$(basename $$(dirname "$$dir")); \
+            $(MAKE) -C "$$dir" runtime BUILDDIR=$(BUILDDIR_COMP)/$$comp_name/cli; \
         fi; \
     done
 
@@ -73,11 +86,11 @@ debug: cfg
 	docker run --rm -it -v $(CURDIR):$(CURDIR) --name "tryspace_fsw_debug" -w $(CURDIR) --user $(shell id -u):$(shell id -g) --sysctl fs.mqueue.msg_max=10000 --ulimit rtprio=99 --cap-add=sys_nice $(BUILD_IMAGE) /bin/bash
 	
 fsw: cfg
-	cd $(CURDIR)/fsw && $(MAKE) runtime
+	cd $(CURDIR)/fsw && $(MAKE) runtime BUILDDIR=$(BUILDDIR_FSW) SPACECRAFT=$(SPACECRAFT) MISSION=$(MISSION)
 
 gsw: cfg
-	cd $(CURDIR)/comp/cryptolib && $(MAKE) tryspace
-	cd $(CURDIR)/gsw && $(MAKE) runtime
+	cd $(CURDIR)/comp/cryptolib && $(MAKE) tryspace SPACECRAFT=$(SPACECRAFT) MISSION=$(MISSION)
+	cd $(CURDIR)/gsw && $(MAKE) runtime BUILDDIR=$(BUILDDIR_GSW) SPACECRAFT=$(SPACECRAFT) MISSION=$(MISSION)
 
 mold:
 	@if [ "$(COMP)" = "" ]; then \
@@ -112,14 +125,15 @@ help:
 	@echo "  uninstall     - Remove containers, images, volumes, and networks"
 
 sim: cfg
-	cd $(CURDIR)/simulith && $(MAKE) build
+	cd $(CURDIR)/simulith && $(MAKE) build BUILDDIR=$(BUILDDIR_SIM) SPACECRAFT=$(SPACECRAFT) MISSION=$(MISSION)
 	@for dir in $(CURDIR)/comp/*/sim ; do \
 		if [ -d "$$dir" ] && [ -f "$$dir/Makefile" ]; then \
 			echo "Building component in $$dir"; \
-			$(MAKE) -C "$$dir" build; \
+			comp_name=$$(basename $$(dirname "$$dir")); \
+			$(MAKE) -C "$$dir" build BUILDDIR=$(BUILDDIR_COMP)/$$comp_name/sim; \
 		fi; \
 	done
-	cd $(CURDIR)/simulith && $(MAKE) director && $(MAKE) server
+	cd $(CURDIR)/simulith && $(MAKE) director BUILDDIR=$(BUILDDIR_SIM) BUILDDIR_COMP=$(BUILDDIR_COMP) SPACECRAFT=$(SPACECRAFT) MISSION=$(MISSION) && $(MAKE) server BUILDDIR=$(BUILDDIR_SIM) BUILDDIR_COMP=$(BUILDDIR_COMP) SPACECRAFT=$(SPACECRAFT) MISSION=$(MISSION)
 
 start: cfg
 	docker compose -f ./cfg/lab-compose.yaml up

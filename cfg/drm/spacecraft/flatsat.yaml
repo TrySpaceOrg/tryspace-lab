@@ -1,0 +1,25 @@
+spacecraft_name: "flatsat"
+spacecraft_id: 0
+components:
+  - name: "demo"
+  - name: "eps"
+  - name: "radio"
+
+# Specific configuration
+demo:
+  string: "/dev/usart_1"
+  handle: 1
+  baudrate_hz: 115200
+  ms_timeout: 250
+
+eps:
+  i2c_bus_id: 0
+  i2c_device_addr: 0x1E
+  i2c_speed: 400000
+  ms_timeout: 250
+
+radio:
+  spi_bus: 0
+  spi_cs: 0
+  gpio_power_pin: 8
+  gpio_interrupt_pin: 9

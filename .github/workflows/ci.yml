@@ -47,8 +47,10 @@ jobs:
         run: |
           cd cfg
           python3 tryspace-orchestrator.py
+          export MISSION=$(python3 -c "import yaml; print(yaml.safe_load(open('active.yaml'))['mission'])")
+          export SPACECRAFT=$(python3 -c "import yaml; print(yaml.safe_load(open('active.yaml'))['spacecraft'])")
           cd ../fsw
-          make build-fsw
+          MISSION=$MISSION SPACECRAFT=$SPACECRAFT make build-fsw
 
   build-test:
     runs-on: ubuntu-latest
@@ -64,8 +66,10 @@ jobs:
         run: |
           cd cfg
           python3 tryspace-orchestrator.py
+          export MISSION=$(python3 -c "import yaml; print(yaml.safe_load(open('active.yaml'))['mission'])")
+          export SPACECRAFT=$(python3 -c "import yaml; print(yaml.safe_load(open('active.yaml'))['spacecraft'])")
           cd ../fsw
-          make build-test
+          MISSION=$MISSION SPACECRAFT=$SPACECRAFT make build-test
       - name: Upload to Codecov
         uses: codecov/codecov-action@v5
         with:

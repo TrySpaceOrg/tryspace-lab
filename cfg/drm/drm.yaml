@@ -1,9 +1,22 @@
 mission_name: "drm"
+
+# Spacecraft configurations
+spacecraft:
+  - name: "flatsat"
+    config_file: "drm/spacecraft/flatsat.yaml"
+  - name: "sat-1"
+    config_file: "drm/spacecraft/sat-1.yaml"
+  - name: "sat-2"
+    config_file: "drm/spacecraft/sat-2.yaml"
+
+# Fallback components if no spacecraft selected
 components:
   - name: "adcs"
   - name: "demo"
   - name: "eps"
   - name: "radio"
+
+# Scenarios for mission operations
 scenarios:
   - name: "nominal"
     config_file: "drm/scenarios/drm-nominal.yaml"
