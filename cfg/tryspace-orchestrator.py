@@ -41,8 +41,11 @@ def main():
         scenarios = mission_cfg.get("scenarios", [])
         scenario = scenarios[0]["name"] if scenarios else "nominal"
         
-        # Default spacecraft selection
-        spacecraft_list = mission_cfg.get("spacecraft", [])
+        # Default spacecraft selection from global or mission config
+        if "spacecraft" in global_cfg["build"] and global_cfg["build"]["spacecraft"]:
+            spacecraft_list = global_cfg["build"]["spacecraft"]
+        else:
+            spacecraft_list = mission_cfg.get("spacecraft", [])
         spacecraft = spacecraft_list[0]["name"] if spacecraft_list else None
         
         active = {"mission": mission, "spacecraft": spacecraft, "scenario": scenario, "cli": "demo", "log_mode": "none"}
@@ -50,8 +53,8 @@ def main():
             yaml.safe_dump(active, f)
         print(f"[orchestrator] Created {ACTIVE_PATH} with defaults: mission={mission}, spacecraft={spacecraft}, scenario={scenario}")
 
-    mission = active.get("mission")
-    spacecraft = active.get("spacecraft")  # NEW: spacecraft selection
+    mission = active.get("mission", "drm")
+    spacecraft = active.get("spacecraft", "sat-1")
     scenario = active.get("scenario", "nominal")
     cli_component = active.get("cli", "demo")
     log_mode = active.get("log", "none")

@@ -2,6 +2,8 @@ build:
   missions:
     - name: "drm"
       config_file: "drm/drm.yaml"
+  spacecraft:
+    - name: "sat-1"
   components:
     - name: "demo"
     - name: "radio"
