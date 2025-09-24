@@ -44,7 +44,7 @@
 #define CPU1_PLATFORM_CFG_H
 
 /* Include mission config to get mission-wide constants */
-#include "tryspace_mission_cfg.h"
+#include "cfe_mission_cfg.h"
 
 /*******************************************************************************/
 /*

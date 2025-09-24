@@ -41,8 +41,8 @@
  * will _not_ be used.
  */
 
-#ifndef TRYSPACE_MISSION_CFG_H
-#define TRYSPACE_MISSION_CFG_H
+#ifndef CFE_MISSION_CFG_H
+#define CFE_MISSION_CFG_H
 
 /**
 **  \cfemissioncfg cFE Maximum length for pathnames within data exchange structures
@@ -591,4 +591,4 @@
 */
 #define CFE_MISSION_TIME_FS_FACTOR 789004800
 
-#endif /* TRYSPACE_MISSION_CFG_H */
+#endif /* CFE_MISSION_CFG_H */
