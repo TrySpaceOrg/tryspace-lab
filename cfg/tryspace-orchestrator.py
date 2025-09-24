@@ -193,7 +193,7 @@ def main():
 
     # Copy and manipulate spacecraft-specific FSW config files
     if spacecraft:
-        build_cfg_dir = os.path.abspath(os.path.join(CFG_DIR, f'../build/{mission}/{spacecraft}/cfg'))
+        build_cfg_dir = os.path.abspath(os.path.join(CFG_DIR, f'../build/{mission}/{spacecraft}/tryspace_defs'))
         baseline_cfg_dir = os.path.abspath(os.path.join(CFG_DIR, 'tryspace_defs'))
         os.makedirs(build_cfg_dir, exist_ok=True)
 
