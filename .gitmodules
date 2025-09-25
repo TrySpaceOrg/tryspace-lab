@@ -18,3 +18,19 @@
 	path = atlas
 	url = https://github.com/TrySpaceOrg/TrySpaceOrg.github.io.git
 	branch = main
+[submodule "comp/eps"]
+	path = comp/eps
+	url = https://github.com/TrySpaceOrg/tryspace-comp-eps.git
+	branch = main
+[submodule "comp/radio"]
+	path = comp/radio
+	url = https://github.com/TrySpaceOrg/tryspace-comp-radio.git
+	branch = main
+[submodule "comp/cryptolib"]
+	path = comp/cryptolib
+	url = https://github.com/TrySpaceOrg/tryspace-ext-cryptolib.git
+	branch = dev
+[submodule "comp/adcs"]
+	path = comp/adcs
+	url = https://github.com/TrySpaceOrg/tryspace-comp-adcs.git
+	branch = main

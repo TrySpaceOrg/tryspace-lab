@@ -3,7 +3,7 @@
 # 
 # Assumes build using `make container` from top level of tryspace-lab repository
 #
-# docker push tryspaceorg/tryspace-lab:0.0.0
+# docker push tryspaceorg/tryspace-lab:1.0.0
 #
 
 FROM debian:bookworm-slim@sha256:6ac2c08566499cc2415926653cf2ed7c3aedac445675a013cc09469c9e118fdd
@@ -17,9 +17,12 @@ RUN apt-get update && \
     cmake \
     curl \
     gcovr \
+    gdb \
     git \
     gpg \
     lcov \
+    libcurl4-openssl-dev \
+    libgcrypt20-dev \
     libsocketcan-dev \
     libzmq3-dev \
     pkg-config \

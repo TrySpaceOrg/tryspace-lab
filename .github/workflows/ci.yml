@@ -12,7 +12,7 @@ jobs:
   build-simulith:
     runs-on: ubuntu-latest
     container:
-        image: tryspaceorg/tryspace-lab:0.0.0
+        image: tryspaceorg/tryspace-lab:1.0.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
   build-fsw:
     runs-on: ubuntu-latest
     container:
-        image: tryspaceorg/tryspace-lab:0.0.0
+        image: tryspaceorg/tryspace-lab:1.0.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,13 +47,15 @@ jobs:
         run: |
           cd cfg
           python3 tryspace-orchestrator.py
+          export MISSION=$(python3 -c "import yaml; print(yaml.safe_load(open('active.yaml'))['mission'])")
+          export SPACECRAFT=$(python3 -c "import yaml; print(yaml.safe_load(open('active.yaml'))['spacecraft'])")
           cd ../fsw
-          make build-fsw
+          MISSION=$MISSION SPACECRAFT=$SPACECRAFT make build-fsw
 
   build-test:
     runs-on: ubuntu-latest
     container:
-        image: tryspaceorg/tryspace-lab:0.0.0
+        image: tryspaceorg/tryspace-lab:1.0.0
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -64,10 +66,34 @@ jobs:
         run: |
           cd cfg
           python3 tryspace-orchestrator.py
+          export MISSION=$(python3 -c "import yaml; print(yaml.safe_load(open('active.yaml'))['mission'])")
+          export SPACECRAFT=$(python3 -c "import yaml; print(yaml.safe_load(open('active.yaml'))['spacecraft'])")
           cd ../fsw
-          make build-test
+          MISSION=$MISSION SPACECRAFT=$SPACECRAFT make build-test
       - name: Upload to Codecov
         uses: codecov/codecov-action@v5
         with:
           verbose: true
           recurse_submodules: true
+
+  build-cli:
+    runs-on: ubuntu-latest
+    container:
+        image: tryspaceorg/tryspace-lab:1.0.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+      - name: Build CLI
+        run: |
+          cd cfg
+          python3 tryspace-orchestrator.py
+          cd ..
+          for dir in $(pwd)/comp/*/cli ; do
+            if [ -f "$dir/Makefile" ]; then
+              echo "Building CLI component in $dir"
+              make -C "$dir" build-cli || { echo "Failed building $dir"; exit 1; }
+            fi
+          done

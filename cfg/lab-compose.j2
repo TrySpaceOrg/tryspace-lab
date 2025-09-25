@@ -1,0 +1,113 @@
+# lab-compose.j2
+# Jinja2 template for lab-compose.yaml with spacecraft-specific images
+services:
+  tryspace-gsw:
+    image: tryspace-gsw-{{ mission | default('default') }}:{{ mission | default('default') }}-{{ spacecraft | default('latest') }}
+    container_name: tryspace-gsw-{{ mission | default('default') }}
+    networks:
+      - tryspace-net-{{ spacecraft | default('default') }}
+    attach: false
+    ports:
+      - "8090:8090"
+    volumes:
+      - gsw-data_{{ mission | default('default') }}:/app/yamcs-data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    cpus: "2.0"
+    mem_limit: 1g
+
+  tryspace-server:
+    image: tryspace-server-{{ mission | default('default') }}:{{ spacecraft | default('latest') }}
+    container_name: tryspace-server-{{ spacecraft | default('default') }}
+    networks:
+      - tryspace-net-{{ spacecraft | default('default') }}
+    stdin_open: true
+    tty: true
+    environment:
+      - NUM_CLIENTS=${NUM_CLIENTS:-2}
+      - SIMULITH_LOG_MODE=stdout
+    command: ["/bin/sh", "-c", "/app/simulith_server_standalone $${NUM_CLIENTS}"]
+    cpus: "4.0"
+    mem_limit: 2g
+    volumes:
+      - simulith_ipc_{{ spacecraft | default('default') }}:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=1g
+    privileged: false
+
+  tryspace-director:
+    image: tryspace-director-{{ mission | default('default') }}:{{ spacecraft | default('latest') }}
+    container_name: tryspace-director-{{ spacecraft | default('default') }}
+    networks:
+      - tryspace-net-{{ spacecraft | default('default') }}
+    stdin_open: true
+    tty: true
+    depends_on:
+      - tryspace-cryptolib
+      - tryspace-gsw
+      - tryspace-server
+    environment:
+      - SIMULITH_LOG_MODE={{ log_mode | default('stdout') }}
+    cpus: "1.0"
+    mem_limit: 512m
+    volumes:
+      - simulith_ipc_{{ spacecraft | default('default') }}:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=100m
+
+  tryspace-cryptolib:
+    image: tryspace-cryptolib-{{ mission | default('default') }}:{{ spacecraft | default('latest') }}
+    container_name: tryspace-cryptolib-{{ spacecraft | default('default') }}
+    networks:
+      - tryspace-net-{{ spacecraft | default('default') }}
+    stdin_open: true
+    tty: true
+    depends_on:
+      - tryspace-gsw
+    cpus: "1.0"
+    mem_limit: 512m
+    volumes:
+      - simulith_ipc_{{ spacecraft | default('default') }}:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=100m
+
+  tryspace-fsw:
+    image: tryspace-fsw-{{ mission | default('default') }}:{{ spacecraft | default('latest') }}
+    container_name: tryspace-fsw-{{ spacecraft | default('default') }}
+    networks:
+      - tryspace-net-{{ spacecraft | default('default') }}
+    stdin_open: true
+    tty: true
+    depends_on:
+      - tryspace-cryptolib
+      - tryspace-director
+      - tryspace-server
+    environment:
+      - SIMULITH_LOG_MODE={{ log_mode | default('stdout') }}
+    sysctls:
+      - fs.mqueue.msg_max=10000
+    ulimits:
+      rtprio: 99
+    cap_add:
+      - SYS_NICE
+    cpus: "4.0"
+    mem_limit: 2g
+    volumes:
+      - simulith_ipc_{{ spacecraft | default('default') }}:/tmp
+    tmpfs:
+      - /dev/shm:noexec,nosuid,size=1g
+    privileged: false
+
+networks:
+  tryspace-net-{{ spacecraft | default('default') }}:
+    driver: bridge
+
+volumes:
+  simulith_ipc_{{ spacecraft | default('default') }}:
+    driver: local
+  gsw-data_{{ mission | default('default') }}:
+    driver: local
