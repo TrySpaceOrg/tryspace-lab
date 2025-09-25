@@ -47,6 +47,7 @@ services:
     stdin_open: true
     tty: true
     depends_on:
+      - tryspace-cryptolib
       - tryspace-gsw
       - tryspace-server
     environment:
@@ -66,7 +67,6 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-      - tryspace-director
       - tryspace-gsw
     cpus: "1.0"
     mem_limit: 512m

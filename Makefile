@@ -2,7 +2,7 @@
 .PHONY: build clean clean-cache clean-cli clean-fsw clean-gsw clean-sim cfg cli cli-start container debug fsw gsw help mold sim start stop uninstall
 
 # Build image name
-export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:0.0.1
+export BUILD_IMAGE ?= tryspaceorg/tryspace-lab:1.0.0
 
 # Common paths
 CFG_DIR := $(CURDIR)/cfg
@@ -149,8 +149,8 @@ stop:
 uninstall: clean clean-cache
 	rm -f $(CFG_DIR)/active.yaml $(CFG_DIR)/build.yaml 
 	docker ps -a --filter "name=tryspace-" -q | xargs -r docker rm -f
-	docker images "tryspace-*" -q | xargs -r docker rmi
-	docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm
+	docker images "tryspace-*" -q | xargs -r docker rmi -f
+	docker volume ls -q --filter "name=gsw-data" | xargs -r docker volume rm -f 
 	docker volume ls -q --filter "name=simulith_ipc" | xargs -r docker volume rm
 	docker network ls -q --filter "name=tryspace-net" | xargs -r docker network rm
 	docker network ls -q --filter "name=cfg_tryspace-net" | xargs -r docker network rm
